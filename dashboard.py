@@ -18,50 +18,68 @@ def load_models():
 yolo_model, classifier = load_models()
 
 # ==========================
-# Info Dataset
+# Custom CSS
 # ==========================
-jumlah_data = 824        # contoh jumlah data training
-rata_rata_data = 4.7     # contoh nilai rata-rata
+st.markdown(
+    """
+    <style>
+        /* Background dan teks utama */
+        .main {
+            background-color: #f4f7fa;
+            color: #2b2d42;
+        }
+
+        /* Judul */
+        h1 {
+            color: #1e3a8a;
+            text-align: center;
+        }
+
+        /* Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: #1e293b;
+        }
+        [data-testid="stSidebar"] * {
+            color: #e2e8f0 !important;
+        }
+
+        /* Tombol upload */
+        div.stFileUploader label {
+            background-color: #2563eb;
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        div.stFileUploader label:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Garis pemisah */
+        hr {
+            border: 1px solid #cbd5e1;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ==========================
-# UI Header
+# UI
 # ==========================
-st.set_page_config(page_title="Dashboard Model", layout="wide")
-st.title("📊 Dashboard Model Machine Learning")
+st.title("🧠 Image Classification & Object Detection App")
 
-# ==========================
-# Top Section (like 824 box)
-# ==========================
-col1, col2 = st.columns([2, 1])
-
-with col1:
-    st.markdown("### 📈 Data Training Summary")
-    col1a, col1b = st.columns(2)
-    with col1a:
-        st.metric(label="Jumlah Data", value=f"{jumlah_data}")
-    with col1b:
-        st.metric(label="Rata-rata Nilai", value=f"{rata_rata_data}")
-
-with col2:
-    st.markdown("### 🔥 Popularity Rate")
-    st.metric(label="Popularity Rate", value="87%", delta="+4%")
-
-st.divider()
-
-# ==========================
-# Mode Pilihan
-# ==========================
-menu = st.sidebar.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-uploaded_file = st.file_uploader("Unggah Gambar", type=["jpg", "jpeg", "png"])
+menu = st.sidebar.selectbox("📋 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+uploaded_file = st.file_uploader("📤 Unggah Gambar", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
-    st.image(img, caption="Gambar yang Diupload", use_container_width=True)
+    st.image(img, caption="📸 Gambar yang Diupload", use_container_width=True)
 
     if menu == "Deteksi Objek (YOLO)":
         results = yolo_model(img)
         result_img = results[0].plot()
-        st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
+        st.image(result_img, caption="🟩 Hasil Deteksi", use_container_width=True)
 
     elif menu == "Klasifikasi Gambar":
         img_resized = img.resize((224, 224))
@@ -71,5 +89,6 @@ if uploaded_file is not None:
 
         prediction = classifier.predict(img_array)
         class_index = np.argmax(prediction)
-        st.write("### Hasil Prediksi:", class_index)
-        st.write("Probabilitas:", np.max(prediction))
+
+        st.markdown(f"### 🧾 **Hasil Prediksi:** {class_index}")
+        st.markdown(f"**Probabilitas:** `{np.max(prediction):.4f}`")
