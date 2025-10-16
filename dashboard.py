@@ -1,94 +1,100 @@
+# ===========================================
+# Image Classification & Object Detection App
+# ===========================================
 import streamlit as st
-from ultralytics import YOLO
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-import numpy as np
 from PIL import Image
-import cv2
 
-# ==========================
-# Load Models
-# ==========================
-@st.cache_resource
-def load_models():
-    yolo_model = YOLO("model/Izzatul Aliya Nisa_Laporan 4.pt")  # Model deteksi objek
-    classifier = tf.keras.models.load_model("model/Izzatul Aliya Nisa_Laporan 2.h5")  # Model klasifikasi
-    return yolo_model, classifier
-
-yolo_model, classifier = load_models()
-
-# ==========================
-# Custom CSS
-# ==========================
-st.markdown(
-    """
-    <style>
-        /* Background dan teks utama */
-        .main {
-            background-color: #f4f7fa;
-            color: #2b2d42;
-        }
-
-        /* Judul */
-        h1 {
-            color: #1e3a8a;
-            text-align: center;
-        }
-
-        /* Sidebar */
-        [data-testid="stSidebar"] {
-            background-color: #1e293b;
-        }
-        [data-testid="stSidebar"] * {
-            color: #e2e8f0 !important;
-        }
-
-        /* Tombol upload */
-        div.stFileUploader label {
-            background-color: #2563eb;
-            color: white !important;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        div.stFileUploader label:hover {
-            background-color: #1d4ed8;
-        }
-
-        /* Garis pemisah */
-        hr {
-            border: 1px solid #cbd5e1;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
+# ---------- PAGE CONFIG ----------
+st.set_page_config(
+    page_title="Image Classification & Object Detection",
+    page_icon="🧠",
+    layout="wide"
 )
 
-# ==========================
-# UI
-# ==========================
-st.title("🧠 Image Classification & Object Detection App")
+# ---------- CUSTOM BACKGROUND (CSS) ----------
+page_bg = """
+<style>
+[data-testid="stAppViewContainer"] {
+    background: linear-gradient(to bottom, #d4f8d4 60%, #d4f8d4 80%, #e6d4f8 100%);
+    color: #1b1b1b;
+    font-family: "Poppins", sans-serif;
+}
 
-menu = st.sidebar.selectbox("📋 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-uploaded_file = st.file_uploader("📤 Unggah Gambar", type=["jpg", "jpeg", "png"])
+[data-testid="stHeader"] {
+    background: rgba(0,0,0,0);
+}
 
-if uploaded_file is not None:
-    img = Image.open(uploaded_file)
-    st.image(img, caption="📸 Gambar yang Diupload", use_container_width=True)
+h1, h2, h3 {
+    font-weight: 600;
+    color: #1b4332;
+}
 
-    if menu == "Deteksi Objek (YOLO)":
-        results = yolo_model(img)
-        result_img = results[0].plot()
-        st.image(result_img, caption="🟩 Hasil Deteksi", use_container_width=True)
+p {
+    font-size: 16px;
+    line-height: 1.6;
+}
 
-    elif menu == "Klasifikasi Gambar":
-        img_resized = img.resize((224, 224))
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
+img {
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+</style>
+"""
+st.markdown(page_bg, unsafe_allow_html=True)
 
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
+# ---------- HEADER ----------
+st.markdown("<h1 style='text-align: center;'>Image Classification & Object Detection</h1>", unsafe_allow_html=True)
+st.write("")
 
-        st.markdown(f"### 🧾 **Hasil Prediksi:** {class_index}")
-        st.markdown(f"**Probabilitas:** `{np.max(prediction):.4f}`")
+# ---------- LOAD IMAGES ----------
+img1 = Image.open("flickr_wild_001199.jpg")
+img2 = Image.open("flickr_wild_000274.jpg")
+img3 = Image.open("flickr_wild_000863.jpg")
+cat1 = Image.open("flickr_cat_000022.jpg")
+cat2 = Image.open("flickr_cat_000050.jpg")
+
+# =====================================================
+# BIG CATS SECTION
+# =====================================================
+st.markdown("## 🦁 Big Cats")
+
+col1, col2 = st.columns([1, 1.8])
+
+with col1:
+    st.image([img1, img2, img3], caption=["Lion", "Leopard", "White Tiger"], width=180)
+
+with col2:
+    st.markdown("""
+    **Big cats** digunakan untuk menyebut kelompok kucing besar yang termasuk dalam keluarga *Felidae* dan umumnya merupakan predator puncak di alam liar.  
+    Hewan-hewan ini memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang sangat efisien.  
+    Contoh yang termasuk kategori *big cats* antara lain **singa, harimau, macan tutul, jaguar, cheetah, puma**, dan **snow leopard**.  
+
+    Sebagian besar dari mereka berasal dari genus *Panthera*, yang dikenal karena kemampuannya untuk mengaum (*roar*) berkat struktur pita suara khusus pada laringnya.  
+    *Big cats* hidup di berbagai habitat seperti hutan hujan, sabana, pegunungan, hingga padang rumput, dan berperan penting dalam menjaga keseimbangan ekosistem karena memangsa herbivora dan mencegah populasi hewan mangsa menjadi berlebihan.  
+    Mereka merupakan simbol kekuatan, keanggunan, dan keindahan alam liar yang sering kali menjadi ikon konservasi satwa dunia.
+    """)
+
+# =====================================================
+# DOMESTIC CATS SECTION
+# =====================================================
+st.markdown("---")
+st.markdown("## 🐱 Cats")
+
+col3, col4 = st.columns([1, 1.8])
+
+with col3:
+    st.image([cat1, cat2], caption=["Domestic Cat 1", "Domestic Cat 2"], width=180)
+
+with col4:
+    st.markdown("""
+    **Cats** merujuk pada semua anggota keluarga *Felidae*, namun dalam penggunaan sehari-hari lebih sering digunakan untuk menyebut **kucing domestik (*Felis catus*)**.  
+    Kucing domestik adalah keturunan dari kucing liar kecil yang telah mengalami proses domestikasi oleh manusia selama ribuan tahun.  
+
+    Berbeda dengan *big cats*, kucing domestik berukuran kecil, bersifat jinak, dan hidup berdampingan dengan manusia sebagai hewan peliharaan.
+    """)
+
+# =====================================================
+# FOOTER
+# =====================================================
+st.markdown("---")
+st.markdown("<p style='text-align:center; font-size:14px; color:#444;'>© 2025 Image Classification Dashboard — created with Streamlit</p>", unsafe_allow_html=True)
