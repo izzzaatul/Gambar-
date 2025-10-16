@@ -12,7 +12,6 @@ import os
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
     page_title="Image Classification & Object Detection",
-    page_icon="🧠",
     layout="wide"
 )
 
@@ -78,12 +77,12 @@ st.write("")
 st.markdown("---")
 st.markdown("## 📸 Coba Deteksi atau Klasifikasi Sendiri!")
 
-menu = st.sidebar.selectbox("📊 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+menu = st.sidebar.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 uploaded_file = st.file_uploader("Unggah gambar di sini", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
-    st.image(img, caption="📷 Gambar yang Diupload", use_container_width=True)
+    st.image(img, caption="Gambar yang Diupload", use_container_width=True)
 
     if yolo_model is not None and classifier is not None:
         if menu == "Deteksi Objek (YOLO)":
@@ -93,7 +92,7 @@ if uploaded_file is not None:
             st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
 
         elif menu == "Klasifikasi Gambar":
-            st.write("### 🧠 Hasil Klasifikasi Gambar")
+            st.write("### Hasil Klasifikasi Gambar")
             img_resized = img.resize((224, 224))
             img_array = keras_image.img_to_array(img_resized)
             img_array = np.expand_dims(img_array, axis=0) / 255.0
@@ -108,20 +107,18 @@ if uploaded_file is not None:
 # =====================================================
 # BIG CATS SECTION
 # =====================================================
-st.markdown("## 🦁 Big Cats")
+st.markdown("## Big Cats")
 
 col1, col2 = st.columns([1, 1.8])
 with col1:
     st.image([
-        "https://cdn-icons-png.flaticon.com/512/616/616408.png",
-        "https://cdn-icons-png.flaticon.com/512/616/616425.png",
-        "https://cdn-icons-png.flaticon.com/512/616/616430.png"
-    ], caption=["Lion", "Leopard", "Tiger"], width=180)
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4NkmusstBoUBuvwN1tvEvaT6QaKQ7e_mHko2CsS9TqR1CpvUiRUZmFVBg67AOCQLLrNH6_DPxXXxl5vQEqodLp2xZmPVoRAIh_CZ8IpU",
+        "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSxx7DlYOJGnCKIpkRlBbAcz_c6tOK7A1Y_Xcrpg8M4XWNxTL2Yp_5k388w7hPnVifu2wqEV40jR04GnKE0LYa231pce5fC0FsmLKZjjUM",
+    ],  width=180)
 with col2:
     st.markdown("""
     **Big cats** digunakan untuk menyebut kelompok kucing besar dalam keluarga *Felidae* yang merupakan predator puncak di alam liar.  
-    Mereka memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang efisien.  
-    Termasuk di antaranya **singa, harimau, macan tutul, jaguar, cheetah, puma**, dan **snow leopard**.  
+    Mereka memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang efisien. Termasuk di antaranya **singa, harimau, macan tutul, jaguar, cheetah, puma**, dan **snow leopard**.  
     """)
 
 # =====================================================
