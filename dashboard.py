@@ -1,7 +1,12 @@
-# ===========================================
-# Image Classification & Object Detection App
-# ===========================================
+# ======================================================
+# Image Classification & Object Detection Dashboard (Full)
+# ======================================================
 import streamlit as st
+from PIL import Image
+import tensorflow as tf
+import numpy as np
+from tensorflow.keras.preprocessing import image as keras_image
+from ultralytics import YOLO
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
@@ -10,7 +15,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------- CUSTOM BACKGROUND (CSS) ----------
+# ---------- CUSTOM BACKGROUND ----------
 page_bg = """
 <style>
 [data-testid="stAppViewContainer"] {
@@ -41,6 +46,15 @@ img {
 """
 st.markdown(page_bg, unsafe_allow_html=True)
 
+# ---------- LOAD MODELS ----------
+@st.cache_resource
+def load_models():
+    yolo_model = YOLO("model/Izzatul Aliya Nisa_Laporan 4.pt")  # Deteksi objek
+    classifier = tf.keras.models.load_model("model/Izzatul Aliya Nisa_Laporan 2.h5")  # Klasifikasi
+    return yolo_model, classifier
+
+yolo_model, classifier = load_models()
+
 # ---------- HEADER ----------
 st.markdown("<h1 style='text-align: center;'>Image Classification & Object Detection</h1>", unsafe_allow_html=True)
 st.write("")
@@ -51,23 +65,17 @@ st.write("")
 st.markdown("## 🦁 Big Cats")
 
 col1, col2 = st.columns([1, 1.8])
-
 with col1:
     st.image([
-        "https://cdn-icons-png.flaticon.com/512/616/616408.png",  # Lion cartoon
-        "https://cdn-icons-png.flaticon.com/512/616/616425.png",  # Leopard cartoon
-        "https://cdn-icons-png.flaticon.com/512/616/616430.png"   # Tiger cartoon
+        "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+        "https://cdn-icons-png.flaticon.com/512/616/616425.png",
+        "https://cdn-icons-png.flaticon.com/512/616/616430.png"
     ], caption=["Lion", "Leopard", "Tiger"], width=180)
-
 with col2:
     st.markdown("""
-    **Big cats** digunakan untuk menyebut kelompok kucing besar yang termasuk dalam keluarga *Felidae* dan umumnya merupakan predator puncak di alam liar.  
-    Hewan-hewan ini memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang sangat efisien.  
-    Contoh yang termasuk kategori *big cats* antara lain **singa, harimau, macan tutul, jaguar, cheetah, puma**, dan **snow leopard**.  
-
-    Sebagian besar dari mereka berasal dari genus *Panthera*, yang dikenal karena kemampuannya untuk mengaum (*roar*) berkat struktur pita suara khusus pada laringnya.  
-    *Big cats* hidup di berbagai habitat seperti hutan hujan, sabana, pegunungan, hingga padang rumput, dan berperan penting dalam menjaga keseimbangan ekosistem karena memangsa herbivora dan mencegah populasi hewan mangsa menjadi berlebihan.  
-    Mereka merupakan simbol kekuatan, keanggunan, dan keindahan alam liar yang sering kali menjadi ikon konservasi satwa dunia.
+    **Big cats** digunakan untuk menyebut kelompok kucing besar dalam keluarga *Felidae* yang merupakan predator puncak di alam liar.  
+    Mereka memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang efisien.  
+    Termasuk di antaranya **singa, harimau, macan tutul, jaguar, cheetah, puma**, dan **snow leopard**.  
     """)
 
 # =====================================================
@@ -77,20 +85,46 @@ st.markdown("---")
 st.markdown("## 🐱 Cats")
 
 col3, col4 = st.columns([1, 1.8])
-
 with col3:
     st.image([
-        "https://cdn-icons-png.flaticon.com/512/616/616408.png",  # Cute cat
-        "https://cdn-icons-png.flaticon.com/512/616/616408.png"   # Another cat
+        "https://cdn-icons-png.flaticon.com/512/2206/2206368.png",
+        "https://cdn-icons-png.flaticon.com/512/616/616408.png"
     ], caption=["Domestic Cat 1", "Domestic Cat 2"], width=180)
-
 with col4:
     st.markdown("""
     **Cats** merujuk pada semua anggota keluarga *Felidae*, namun dalam penggunaan sehari-hari lebih sering digunakan untuk menyebut **kucing domestik (*Felis catus*)**.  
-    Kucing domestik adalah keturunan dari kucing liar kecil yang telah mengalami proses domestikasi oleh manusia selama ribuan tahun.  
-
-    Berbeda dengan *big cats*, kucing domestik berukuran kecil, bersifat jinak, dan hidup berdampingan dengan manusia sebagai hewan peliharaan.
+    Kucing domestik berukuran kecil, bersifat jinak, dan hidup berdampingan dengan manusia sebagai hewan peliharaan.
     """)
+
+# =====================================================
+# MODEL SECTION — UPLOAD & PREDIKSI
+# =====================================================
+st.markdown("---")
+st.markdown("## 📸 Coba Deteksi atau Klasifikasi Sendiri!")
+
+menu = st.sidebar.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+uploaded_file = st.file_uploader("Unggah gambar di sini", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    img = Image.open(uploaded_file)
+    st.image(img, caption="Gambar yang Diupload", use_container_width=True)
+
+    if menu == "Deteksi Objek (YOLO)":
+        st.write("### 🔍 Hasil Deteksi Objek")
+        results = yolo_model(img)
+        result_img = results[0].plot()
+        st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
+
+    elif menu == "Klasifikasi Gambar":
+        st.write("### 🧠 Hasil Klasifikasi Gambar")
+        img_resized = img.resize((224, 224))
+        img_array = keras_image.img_to_array(img_resized)
+        img_array = np.expand_dims(img_array, axis=0) / 255.0
+
+        prediction = classifier.predict(img_array)
+        class_index = np.argmax(prediction)
+        st.success(f"Hasil Prediksi: **{class_index}**")
+        st.write("Probabilitas:", np.max(prediction))
 
 # =====================================================
 # FOOTER
