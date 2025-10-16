@@ -75,6 +75,36 @@ yolo_model, classifier = load_models()
 st.markdown("<h1 style='text-align: center;'>Image Classification & Object Detection</h1>", unsafe_allow_html=True)
 st.write("")
 
+st.markdown("---")
+st.markdown("## 📸 Coba Deteksi atau Klasifikasi Sendiri!")
+
+menu = st.sidebar.selectbox("📊 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+uploaded_file = st.file_uploader("Unggah gambar di sini", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    img = Image.open(uploaded_file)
+    st.image(img, caption="📷 Gambar yang Diupload", use_container_width=True)
+
+    if yolo_model is not None and classifier is not None:
+        if menu == "Deteksi Objek (YOLO)":
+            st.write("### 🔍 Hasil Deteksi Objek")
+            results = yolo_model(img)
+            result_img = results[0].plot()
+            st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
+
+        elif menu == "Klasifikasi Gambar":
+            st.write("### 🧠 Hasil Klasifikasi Gambar")
+            img_resized = img.resize((224, 224))
+            img_array = keras_image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0) / 255.0
+
+            prediction = classifier.predict(img_array)
+            class_index = np.argmax(prediction)
+            st.success(f"Hasil Prediksi: **{class_index}**")
+            st.write("Probabilitas:", float(np.max(prediction)))
+    else:
+        st.warning("⚠️ Model belum berhasil dimuat. Periksa kembali folder 'model/'.")
+
 # =====================================================
 # BIG CATS SECTION
 # =====================================================
@@ -111,39 +141,6 @@ with col4:
     **Cats** merujuk pada semua anggota keluarga *Felidae*, namun dalam penggunaan sehari-hari lebih sering digunakan untuk menyebut **kucing domestik (*Felis catus*)**.  
     Kucing domestik berukuran kecil, bersifat jinak, dan hidup berdampingan dengan manusia sebagai hewan peliharaan.
     """)
-
-# =====================================================
-# MODEL SECTION — UPLOAD & PREDIKSI
-# =====================================================
-st.markdown("---")
-st.markdown("## 📸 Coba Deteksi atau Klasifikasi Sendiri!")
-
-menu = st.sidebar.selectbox("📊 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-uploaded_file = st.file_uploader("Unggah gambar di sini", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    img = Image.open(uploaded_file)
-    st.image(img, caption="📷 Gambar yang Diupload", use_container_width=True)
-
-    if yolo_model is not None and classifier is not None:
-        if menu == "Deteksi Objek (YOLO)":
-            st.write("### 🔍 Hasil Deteksi Objek")
-            results = yolo_model(img)
-            result_img = results[0].plot()
-            st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
-
-        elif menu == "Klasifikasi Gambar":
-            st.write("### 🧠 Hasil Klasifikasi Gambar")
-            img_resized = img.resize((224, 224))
-            img_array = keras_image.img_to_array(img_resized)
-            img_array = np.expand_dims(img_array, axis=0) / 255.0
-
-            prediction = classifier.predict(img_array)
-            class_index = np.argmax(prediction)
-            st.success(f"Hasil Prediksi: **{class_index}**")
-            st.write("Probabilitas:", float(np.max(prediction)))
-    else:
-        st.warning("⚠️ Model belum berhasil dimuat. Periksa kembali folder 'model/'.")
 
 # =====================================================
 # FOOTER
