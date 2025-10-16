@@ -1,5 +1,5 @@
 # ======================================================
-# Image Classification & Object Detection Dashboard (Full)
+# Image Classification & Object Detection Dashboard (Final)
 # ======================================================
 import streamlit as st
 from PIL import Image
@@ -7,6 +7,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras.preprocessing import image as keras_image
 from ultralytics import YOLO
+import os
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
@@ -49,9 +50,24 @@ st.markdown(page_bg, unsafe_allow_html=True)
 # ---------- LOAD MODELS ----------
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/Izzatul Aliya Nisa_Laporan 4.pt")  # Deteksi objek
-    classifier = tf.keras.models.load_model("model/Izzatul Aliya Nisa_Laporan 2.h5")  # Klasifikasi
+    base_path = "model"
+    yolo_path = os.path.join(base_path, "Izzatul Aliya Nisa_Laporan 4.pt")
+    classifier_path = os.path.join(base_path, "Izzatul Aliya Nisa_Laporan 2.h5")
+
+    # Cek keberadaan file
+    if not os.path.exists(yolo_path):
+        st.error(f"❌ File YOLO tidak ditemukan di: {yolo_path}")
+        return None, None
+    if not os.path.exists(classifier_path):
+        st.error(f"❌ File Klasifikasi tidak ditemukan di: {classifier_path}")
+        return None, None
+
+    # Load model
+    yolo_model = YOLO(yolo_path)
+    classifier = tf.keras.models.load_model(classifier_path)
+
     return yolo_model, classifier
+
 
 yolo_model, classifier = load_models()
 
@@ -102,29 +118,32 @@ with col4:
 st.markdown("---")
 st.markdown("## 📸 Coba Deteksi atau Klasifikasi Sendiri!")
 
-menu = st.sidebar.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+menu = st.sidebar.selectbox("📊 Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 uploaded_file = st.file_uploader("Unggah gambar di sini", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
-    st.image(img, caption="Gambar yang Diupload", use_container_width=True)
+    st.image(img, caption="📷 Gambar yang Diupload", use_container_width=True)
 
-    if menu == "Deteksi Objek (YOLO)":
-        st.write("### 🔍 Hasil Deteksi Objek")
-        results = yolo_model(img)
-        result_img = results[0].plot()
-        st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
+    if yolo_model is not None and classifier is not None:
+        if menu == "Deteksi Objek (YOLO)":
+            st.write("### 🔍 Hasil Deteksi Objek")
+            results = yolo_model(img)
+            result_img = results[0].plot()
+            st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
 
-    elif menu == "Klasifikasi Gambar":
-        st.write("### 🧠 Hasil Klasifikasi Gambar")
-        img_resized = img.resize((224, 224))
-        img_array = keras_image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0
+        elif menu == "Klasifikasi Gambar":
+            st.write("### 🧠 Hasil Klasifikasi Gambar")
+            img_resized = img.resize((224, 224))
+            img_array = keras_image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
-        st.success(f"Hasil Prediksi: **{class_index}**")
-        st.write("Probabilitas:", np.max(prediction))
+            prediction = classifier.predict(img_array)
+            class_index = np.argmax(prediction)
+            st.success(f"Hasil Prediksi: **{class_index}**")
+            st.write("Probabilitas:", float(np.max(prediction)))
+    else:
+        st.warning("⚠️ Model belum berhasil dimuat. Periksa kembali folder 'model/'.")
 
 # =====================================================
 # FOOTER
