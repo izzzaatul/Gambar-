@@ -2,7 +2,6 @@
 # Image Classification & Object Detection App
 # ===========================================
 import streamlit as st
-from PIL import Image
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
@@ -46,13 +45,6 @@ st.markdown(page_bg, unsafe_allow_html=True)
 st.markdown("<h1 style='text-align: center;'>Image Classification & Object Detection</h1>", unsafe_allow_html=True)
 st.write("")
 
-# ---------- LOAD IMAGES ----------
-img1 = Image.open("flickr_wild_001199.jpg")
-img2 = Image.open("flickr_wild_000274.jpg")
-img3 = Image.open("flickr_wild_000863.jpg")
-cat1 = Image.open("flickr_cat_000022.jpg")
-cat2 = Image.open("flickr_cat_000050.jpg")
-
 # =====================================================
 # BIG CATS SECTION
 # =====================================================
@@ -61,7 +53,11 @@ st.markdown("## 🦁 Big Cats")
 col1, col2 = st.columns([1, 1.8])
 
 with col1:
-    st.image([img1, img2, img3], caption=["Lion", "Leopard", "White Tiger"], width=180)
+    st.image([
+        "https://cdn-icons-png.flaticon.com/512/616/616408.png",  # Lion cartoon
+        "https://cdn-icons-png.flaticon.com/512/616/616425.png",  # Leopard cartoon
+        "https://cdn-icons-png.flaticon.com/512/616/616430.png"   # Tiger cartoon
+    ], caption=["Lion", "Leopard", "Tiger"], width=180)
 
 with col2:
     st.markdown("""
@@ -83,7 +79,10 @@ st.markdown("## 🐱 Cats")
 col3, col4 = st.columns([1, 1.8])
 
 with col3:
-    st.image([cat1, cat2], caption=["Domestic Cat 1", "Domestic Cat 2"], width=180)
+    st.image([
+        "https://cdn-icons-png.flaticon.com/512/616/616408.png",  # Cute cat
+        "https://cdn-icons-png.flaticon.com/512/616/616408.png"   # Another cat
+    ], caption=["Domestic Cat 1", "Domestic Cat 2"], width=180)
 
 with col4:
     st.markdown("""
