@@ -117,25 +117,24 @@ with col1:
     ],  width=180)
 with col2:
     st.markdown("""
-    **Big cats** digunakan untuk menyebut kelompok kucing besar dalam keluarga *Felidae* yang merupakan predator puncak di alam liar.  
-    Mereka memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang efisien. Termasuk di antaranya **singa, harimau, macan tutul, jaguar, cheetah, puma**, dan **snow leopard**.  
+    **Big cats** digunakan untuk menyebut kelompok kucing besar dalam keluarga Felidae yang merupakan predator puncak di alam liar. Mereka memiliki tubuh besar, kekuatan luar biasa, serta kemampuan berburu yang efisien. Termasuk di antaranya singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.  
     """)
 
 # =====================================================
 # DOMESTIC CATS SECTION
 # =====================================================
 st.markdown("---")
-st.markdown("## 🐱 Cats")
+st.markdown("## Cats")
 
 col3, col4 = st.columns([1, 1.8])
 with col3:
     st.image([
-        "https://cdn-icons-png.flaticon.com/512/2206/2206368.png",
-        "https://cdn-icons-png.flaticon.com/512/616/616408.png"
-    ], caption=["Domestic Cat 1", "Domestic Cat 2"], width=180)
+        "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQi0PDfyyodLAdbPjWwlzDCl2cVsAJdXsOUZu_z1K6uVBYyJsXP0AdiIWAxnQGqzYM9eTDcc-JOlxILrdfj4GqfHEkwFwaO_m0bER0TRQ",
+        "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSsDlQRbFTFAX18vipiN0ew3LY-wmOoLGkjo4ywyZhKtdxZlYiO0K2iIWCB8urhaggtw-b9H8butDgeY6mprWpjJWZ4az7gUSGkbDIlQw"
+    ], width=180)
 with col4:
     st.markdown("""
-    **Cats** merujuk pada semua anggota keluarga *Felidae*, namun dalam penggunaan sehari-hari lebih sering digunakan untuk menyebut **kucing domestik (*Felis catus*)**.  
+    **Cats** merujuk pada semua anggota keluarga Felidae, namun dalam penggunaan sehari-hari lebih sering digunakan untuk menyebut kucing domestik (Felis catus).  
     Kucing domestik berukuran kecil, bersifat jinak, dan hidup berdampingan dengan manusia sebagai hewan peliharaan.
     """)
 
