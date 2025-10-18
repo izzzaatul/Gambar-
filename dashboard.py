@@ -1,5 +1,5 @@
 # ======================================================
-# Cats & Bigcats — FINAL RED MOCKUP (no white bar, red texts)
+# Cats & Bigcats — FINAL RED MOCKUP (tombol merah teks putih)
 # ======================================================
 import os
 from pathlib import Path
@@ -55,13 +55,22 @@ h1,h2,h3{margin:0;padding:0}
 .hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.5px; }
 .hero .t2{ margin-top:10px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
 
-/* MODE BUTTONS: merah, teks putih */
+/* MODE BUTTONS: Merah, teks putih */
 #modebar .stButton>button{
-  background:var(--red) !important; color:#fff !important; font-weight:800 !important;
-  letter-spacing:.3px; padding:14px 26px !important; border-radius:18px !important;
-  border:none !important; min-width:220px; box-shadow:0 6px 16px rgba(179,19,18,.28);
+  background:var(--red) !important;
+  color:#fff !important;
+  font-weight:800 !important;
+  letter-spacing:.3px;
+  padding:16px 26px !important;
+  border-radius:16px !important;
+  border:none !important;
+  min-width:260px;
+  box-shadow:0 6px 16px rgba(179,19,18,.28);
+  font-size:18px !important;
 }
-#modebar .stButton>button:hover{ background:var(--red-dark) !important; }
+#modebar .stButton>button:hover{
+  background:var(--red-dark) !important;
+}
 
 /* UPLOADER */
 .uploader-wrap{ max-width:820px; margin:0 auto 20px auto; }
@@ -78,22 +87,24 @@ h1,h2,h3{margin:0;padding:0}
 .grid img{ width:100%; height:160px; object-fit:cover; border-radius:16px; box-shadow:0 6px 16px rgba(0,0,0,.16); }
 .desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 
-/* RIGHT STATS (tanpa background putih) */
-.stat-wrap{ /* container transparan supaya tidak ada bar putih di atas */
-  background:transparent; padding:0; margin:0;
-}
+/* RIGHT STATS */
+.stat-wrap{ background:transparent; padding:0; margin:0; }
 .stat-header{
-  background:var(--red); color:#fff; font-weight:800; text-align:center;
-  padding:12px; border-radius:28px; margin-bottom:14px;
+  background:var(--red);
+  color:#fff;
+  font-weight:800;
+  text-align:center;
+  padding:12px;
+  border-radius:28px;
+  margin-bottom:14px;
   box-shadow:0 14px 22px rgba(179,19,18,.35);
 }
 .stat-grid{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:10px; text-align:center; margin-bottom:12px;
 }
-.stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }   /* angka merah */
-.stat-label{ font-size:14px; color:var(--red); }                                 /* label merah */
-
-/* metrics bawah jadi merah juga */
+.stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
+.stat-label{ font-size:14px; color:var(--red); }
 .metrics{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:10px; }
 .metric{ text-align:center; padding:8px; border-radius:12px; }
 .metric .m-title{ font-weight:800; color:var(--red); }
@@ -190,7 +201,6 @@ with left:
     )
 
 with right:
-    # container transparan -> tidak ada bar putih
     st.markdown('<div class="stat-wrap">', unsafe_allow_html=True)
     st.markdown('<div class="stat-header">Data yang digunakan</div>', unsafe_allow_html=True)
 
