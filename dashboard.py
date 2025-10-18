@@ -1,260 +1,277 @@
 # ======================================================
-# Image Classification & Object Detection Dashboard — Red Mockup (Fixed)
+# Cats & Bigcats — FINAL UI (matches red mockup)
 # ======================================================
 import os
 from pathlib import Path
-from typing import List
-
 import streamlit as st
 from PIL import Image
 import numpy as np
 
-# ---------- SAFE IMPORTS ----------
-# Ultralytics (YOLO) optional
-YOLO_AVAILABLE, YOLO_IMPORT_ERR = False, None
+# ---------- PAGE CONFIG ----------
+st.set_page_config(page_title="CATS DAN BIGCATS", page_icon="🐾", layout="wide")
+
+# ---------- OPTIONAL BACKEND (silent) ----------
+# YOLO & TF dimuat diam-diam; tidak menampilkan warning bila tidak tersedia
+YOLO_AVAILABLE = False
+CLASSIFIER_AVAILABLE = False
+yolo_model = None
+classifier = None
+
 try:
     from ultralytics import YOLO
-    YOLO_AVAILABLE = True
-except Exception as e:
-    YOLO_IMPORT_ERR = e
+    yolo_path = "model/Izzatul Aliya Nisa_Laporan 4.pt"
+    if os.path.exists(yolo_path):
+        yolo_model = YOLO(yolo_path)
+        YOLO_AVAILABLE = True
+except Exception:
+    pass
 
-# TensorFlow optional
-TF_AVAILABLE, TF_IMPORT_ERR = False, None
 try:
     import tensorflow as tf
     from tensorflow.keras.preprocessing import image as keras_image
-    TF_AVAILABLE = True
-except Exception as e:
-    TF_IMPORT_ERR = e
+    clf_path = "model/Izzatul Aliya Nisa_Laporan 2.h5"
+    if os.path.exists(clf_path):
+        classifier = tf.keras.models.load_model(clf_path)
+        CLASSIFIER_AVAILABLE = True
+except Exception:
+    pass
 
-# ---------- PAGE CONFIG ----------
-st.set_page_config(
-    page_title="CATS dan BIGCATS — Detection & Classification",
-    page_icon="🐾",
-    layout="wide",
-)
-
-# ---------- THEME & STYLES (Merah seperti mockup) ----------
+# ---------- STYLES (copy mockup) ----------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&display=swap');
 
-:root{ --red:#B31312; --red-dark:#870E0D; --cream:#FFF7F5; --text:#1b1b1b; }
+:root{
+  --red:#B31312;
+  --red-dark:#8E0F0E;
+  --cream:#FFF3F1;
+  --ink:#1b1b1b;
+}
 
-* { font-family:'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-[data-testid="stAppViewContainer"]{ background:var(--cream); color:var(--text); }
+*{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
 
-h1,h2,h3{ color:var(--red); font-weight:800; letter-spacing:1px; }
+[data-testid="stAppViewContainer"]{
+  background:var(--cream);
+  color:var(--ink);
+  padding-top: 10px;
+}
 
-.header-title{ text-align:center; font-size:64px; line-height:1.05; margin-top:8px; margin-bottom:4px; }
-.sub-title{ text-align:center; font-size:52px; line-height:1.05; margin-top:0; margin-bottom:24px; }
+/* remove default top bar background */
+[data-testid="stHeader"]{background:transparent;}
 
-.center-row{ display:flex; align-items:center; justify-content:center; gap:16px; margin:8px 0 16px 0; }
-.app-btn{ background:var(--red); border:none; color:white; padding:14px 22px; border-radius:14px; font-weight:700; letter-spacing:.2px; cursor:pointer; }
-.app-btn:hover{ background:var(--red-dark); }
+h1,h2,h3{margin:0;padding:0}
 
-.upload-box > div{ border-radius:16px !important; border:2px dashed #e0e0e0 !important; }
+.hero{
+  text-align:center;
+  margin-top:10px;
+  margin-bottom:6px;
+}
+.hero .t1{
+  font-size:76px;
+  font-weight:900;
+  color:var(--red);
+  letter-spacing:.5px;
+}
+.hero .t2{
+  margin-top:10px;
+  font-size:38px;
+  font-weight:900;
+  color:var(--red);
+  letter-spacing:.8px;
+}
 
-.section-title{ font-size:28px; color:var(--red); font-weight:800; margin-top:8px; }
-.section-desc{ font-size:14px; color:#403f3f; margin-top:6px; }
+/* mode buttons (pill) */
+.modebar{
+  display:flex;justify-content:center;gap:22px;margin:14px 0 20px 0;
+}
+.modebar .btn{
+  appearance:none;border:none;outline:none;cursor:pointer;
+  background:var(--red); color:#fff;
+  font-weight:800; letter-spacing:.3px;
+  padding:14px 26px; border-radius:18px; min-width:220px;
+  box-shadow:0 6px 16px rgba(179,19,18,.28);
+}
+.modebar .btn.alt{
+  background:#fff; color:var(--red); border:2px solid var(--red);
+  box-shadow:none;
+}
+.modebar .btn:hover{filter:brightness(.94)}
+.modebar .btn.alt:hover{background:#FFF6F6}
 
+/* uploader look */
+.uploader-wrap{ max-width:820px; margin: 0 auto 20px auto; }
+.uploader-wrap [data-testid="stFileUploaderDropzone"]{
+  border:2px dashed #d9e6ff !important; background:#eef5ff !important;
+  border-radius:16px !important;
+}
+
+/* horizontal rule */
+.sep{ border:none; border-top:2px solid #E1E1E1; margin:22px 0 10px; }
+
+/* section titles */
+.section-title{
+  color:var(--red); font-weight:900; font-size:28px; margin:12px 0 10px;
+}
+
+/* grid of images (exact 4 per row) */
 .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-.grid img{ width:100%; height:160px; object-fit:cover; border-radius:18px; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+.grid img{ width:100%; height:160px; object-fit:cover; border-radius:16px;
+           box-shadow:0 6px 16px rgba(0,0,0,.16); }
 
-.stat-card{ background:var(--red); color:white; border-radius:24px; padding:28px; box-shadow:0 12px 30px rgba(179,19,18,.25); }
-.stat-head{ font-size:26px; font-weight:800; text-align:center; margin-bottom:10px; }
-.stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:6px; }
-.stat-box{ background:rgba(255,255,255,.08); padding:12px; border-radius:14px; text-align:center; }
-.stat-num{ font-size:30px; font-weight:800; line-height:1; }
-.stat-label{ font-size:14px; opacity:.95; }
+/* description text */
+.desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 
-.metric-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px; }
-.metric{ background:rgba(255,255,255,.08); padding:14px; border-radius:14px; text-align:center; }
-.metric .big{ font-size:30px; font-weight:800; }
-.metric .small{ font-size:14px; }
+/* right red card */
+.stat-card{
+  background:var(--red); color:#fff; border-radius:24px; padding:22px 20px 16px;
+  box-shadow:0 14px 28px rgba(179,19,18,.30);
+}
+.stat-header{
+  background:var(--red-dark); color:#fff; text-align:center;
+  font-weight:800; font-size:18px; padding:10px; border-radius:16px;
+  margin-bottom:14px;
+}
+.stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; text-align:center; }
+.stat-num{ font-size:30px; font-weight:900; line-height:1; margin-top:4px; }
+.stat-label{ font-size:13px; opacity:.95; }
 
-.footer{ text-align:center; font-size:13px; color:#5a5a5a; margin-top:24px; }
+/* metrics below */
+.metrics{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.metric{ background:rgba(255,255,255,.10); border-radius:14px; padding:12px; text-align:center; }
+.metric .m-title{font-weight:700}
+.metric .m-val{ font-size:28px; font-weight:900; line-height:1; margin-top:4px; }
+.metric .m-sub{ font-size:12px; opacity:.95 }
+
+/* footer */
+.foot{ text-align:center; font-size:12px; color:#666; margin:28px 0 8px; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- HEADER ----------
-st.markdown("<div class='header-title'>CATS DAN BIGCATS</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-title'>DETECTION OBJEK AND CLASSIFICATION</div>", unsafe_allow_html=True)
+# ---------- HERO ----------
+st.markdown("""
+<div class="hero">
+  <div class="t1">CATS DAN BIGCATS</div>
+  <div class="t2">DETECTION OBJEK AND CLASSIFICATION</div>
+</div>
+""", unsafe_allow_html=True)
 
-# ---------- INFO ENV RINGKAS (membantu debugging) ----------
-import sys
-cv2_ver = "N/A"
-try:
-    import cv2  # type: ignore
-    cv2_ver = cv2.__version__
-except Exception:
-    pass
-st.caption(f"Python: {sys.version.split()[0]}  |  OpenCV: {cv2_ver}  |  YOLO: {'OK' if YOLO_AVAILABLE else 'off'}  |  TF: {'OK' if TF_AVAILABLE else 'off'}")
-
-# ---------- MODEL LOADING ----------
-@st.cache_resource
-def load_models():
-    base_path = "model"
-    yolo_path = os.path.join(base_path, "Izzatul Aliya Nisa_Laporan 4.pt")
-    classifier_path = os.path.join(base_path, "Izzatul Aliya Nisa_Laporan 2.h5")
-
-    yolo_model = None
-    classifier = None
-
-    # YOLO
-    if YOLO_AVAILABLE:
-        if os.path.exists(yolo_path):
-            try:
-                yolo_model = YOLO(yolo_path)
-            except Exception as e:
-                st.error(f"❌ Gagal memuat YOLO: {e}")
-        else:
-            st.warning(f"⚠️ File YOLO tidak ditemukan: {yolo_path}")
-    else:
-        if YOLO_IMPORT_ERR:
-            st.warning(f"YOLO dimatikan sementara (import error): {YOLO_IMPORT_ERR}")
-
-    # Classifier (TensorFlow)
-    if TF_AVAILABLE:
-        if os.path.exists(classifier_path):
-            try:
-                classifier = tf.keras.models.load_model(classifier_path)
-            except Exception as e:
-                st.error(f"❌ Gagal memuat model klasifikasi TF: {e}")
-        else:
-            st.warning(f"⚠️ File Klasifikasi tidak ditemukan: {classifier_path}")
-    else:
-        if TF_IMPORT_ERR:
-            st.warning(f"Klasifikasi TF dimatikan sementara (import error): {TF_IMPORT_ERR}")
-
-    return yolo_model, classifier
-
-yolo_model, classifier = load_models()
-
-# ---------- MODE SWITCH (tombol tengah seperti mockup) ----------
+# ---------- MODE BUTTONS ----------
 if "mode" not in st.session_state:
-    st.session_state.mode = "Deteksi Objek (YOLO)"
+    st.session_state.mode = "Deteksi Objek"
 
-colA, colB, colC = st.columns([1, 1, 1])
-with colB:
-    c1, c2 = st.columns(2)
-    if c1.button("Deteksi Objek", use_container_width=True):
-        st.session_state.mode = "Deteksi Objek (YOLO)"
-    if c2.button("Klasifikasi Gambar", use_container_width=True):
-        st.session_state.mode = "Klasifikasi Gambar"
+c1, c2, c3 = st.columns([1,2,1])
+with c2:
+    st.markdown('<div class="modebar">', unsafe_allow_html=True)
+    colL, colR = st.columns(2)
+    with colL:
+        if st.button("Deteksi Objek", key="btn_det", use_container_width=True):
+            st.session_state.mode = "Deteksi Objek"
+    with colR:
+        if st.button("Klasifikasi Gambar", key="btn_cls", use_container_width=True):
+            st.session_state.mode = "Klasifikasi Gambar"
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- UPLOADER ----------
-st.markdown("<div class='upload-box'>", unsafe_allow_html=True)
-uploaded_file = st.file_uploader(
-    "Drag and drop file here  •  Max 200MB  •  JPG/JPEG/PNG",
-    type=["jpg", "jpeg", "png"]
-)
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown('<div class="uploader-wrap">', unsafe_allow_html=True)
+uploaded = st.file_uploader("Drag and drop file here  •  Max 200MB  •  JPG/JPEG/PNG",
+                             type=["jpg","jpeg","png"])
+st.markdown('</div>', unsafe_allow_html=True)
 
-if uploaded_file is not None:
-    img = Image.open(uploaded_file).convert("RGB")
-    st.image(img, caption="Gambar yang diunggah", use_container_width=True)
-
-    if st.session_state.mode == "Deteksi Objek (YOLO)":
-        if yolo_model is None:
-            st.info("Deteksi objek tidak tersedia di environment ini. Pastikan Python 3.11 & OpenCV terpasang.")
+# ---------- PROCESS (silent; hanya tampil saat model & file ada) ----------
+if uploaded is not None:
+    img = Image.open(uploaded).convert("RGB")
+    st.image(img, caption=None, use_container_width=True)
+    if st.session_state.mode == "Deteksi Objek":
+        if YOLO_AVAILABLE:
+            res = yolo_model(img)
+            st.image(res[0].plot(), caption=None, use_container_width=True)
         else:
-            st.subheader("🔍 Hasil Deteksi Objek")
-            try:
-                results = yolo_model(img)
-                result_img = results[0].plot()  # numpy array (BGR)
-                st.image(result_img, caption="Hasil Deteksi (YOLO)", use_container_width=True)
-            except Exception as e:
-                st.error(f"Gagal menjalankan YOLO: {e}")
+            pass  # tetap diam; UI mengikuti mockup
     else:
-        st.subheader("🧠 Hasil Klasifikasi Gambar")
-        if classifier is None:
-            st.info("Model klasifikasi (TensorFlow) belum tersedia di environment ini.")
+        if CLASSIFIER_AVAILABLE:
+            img_res = img.resize((224,224))
+            from tensorflow.keras.preprocessing import image as keras_image  # noqa
+            arr = np.expand_dims(keras_image.img_to_array(img_res)/255.0, axis=0)
+            pred = classifier.predict(arr)
+            idx = int(np.argmax(pred)); prob = float(np.max(pred))
+            st.success(f"Hasil Prediksi: **{idx}**  •  Prob: **{prob:.3f}**")
         else:
-            try:
-                img_resized = img.resize((224, 224))
-                arr = keras_image.img_to_array(img_resized)
-                arr = np.expand_dims(arr, axis=0) / 255.0
-                pred = classifier.predict(arr)
-                idx = int(np.argmax(pred))
-                prob = float(np.max(pred))
-                st.success(f"Hasil Prediksi: **{idx}**")
-                st.write(f"Probabilitas: **{prob:.4f}**")
-            except Exception as e:
-                st.error(f"Gagal melakukan klasifikasi: {e}")
+            pass
 
-st.markdown("---")
+# ---------- SEPARATOR ----------
+st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
-# =====================================================
-# GALLERY DATA (ganti kotak hitam dengan gambar daftar “foto ke-2”)
-# =====================================================
+# ---------- CONTENT LAYOUT ----------
+left, right = st.columns([1.5, 1.0], gap="large")
+
+# file list sesuai gambar kedua
 CAT_DIR = Path("images/cats")
 BIGCAT_DIR = Path("images/bigcats")
-
 cats_files = [
-    "flickr_cat_000003.jpg", "flickr_cat_000004.jpg", "flickr_cat_000005.jpg",
-    "flickr_cat_000006.jpg", "flickr_cat_000008.jpg", "flickr_cat_000009.jpg",
+    "flickr_cat_000003.jpg","flickr_cat_000004.jpg","flickr_cat_000005.jpg",
+    "flickr_cat_000006.jpg","flickr_cat_000008.jpg","flickr_cat_000009.jpg"
 ]
 bigcats_files = [
-    "flickr_wild_000274.jpg", "flickr_wild_000276.jpg", "flickr_wild_000277.jpg",
-    "flickr_wild_000279.jpg", "flickr_wild_000281.jpg", "flickr_wild_000283.jpg",
+    "flickr_wild_000274.jpg","flickr_wild_000276.jpg","flickr_wild_000277.jpg",
+    "flickr_wild_000279.jpg","flickr_wild_000281.jpg","flickr_wild_000283.jpg"
 ]
 
-def load_existing_images(base: Path, names: List[str]) -> List[str]:
-    return [str(base / n) for n in names if (base / n).exists()]
+def imgs(folder: Path, files: list[str]) -> list[str]:
+    return [str(folder/f) for f in files if (folder/f).exists()]
 
-def show_grid(images: List[str], per_row: int = 4):
-    if not images:
-        st.info("⚠️ Gambar belum ditemukan. Pastikan file ada di folder `images/...` sesuai daftar nama file.")
+def show4(img_list: list[str]):
+    # tampil 4 per baris, persis seperti mockup (tidak ada caption)
+    if not img_list:
+        st.info("⚠️ Gambar belum ditemukan. Pastikan file ada di folder yang benar.")
         return
-    rows = [images[i:i+per_row] for i in range(0, len(images), per_row)]
+    # potong jadi kelipatan 4
+    rows = [img_list[i:i+4] for i in range(0, len(img_list), 4)]
     for row in rows:
-        cols = st.columns(per_row)
-        for i, src in enumerate(row):
+        cols = st.columns(4)
+        for i, p in enumerate(row):
             with cols[i]:
-                st.image(src, use_container_width=True)
-
-left, right = st.columns([1.4, 0.9], gap="large")
+                st.image(p, use_container_width=True)
 
 with left:
     # BIG CATS
-    st.markdown("<div class='section-title'>Big Cats</div>", unsafe_allow_html=True)
-    show_grid(load_existing_images(BIGCAT_DIR, bigcats_files), per_row=4)
+    st.markdown('<div class="section-title">Big Cats</div>', unsafe_allow_html=True)
+    show4(imgs(BIGCAT_DIR, bigcats_files))
     st.markdown(
-        "<div class='section-desc'><b>Big cats</b> adalah kelompok kucing besar dalam keluarga Felidae yang menjadi predator puncak. "
-        "Ciri utamanya bertubuh besar, berotot kuat, serta kemampuan berburu yang efisien. "
-        "Contoh: singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.</div>",
+        '<div class="desc"><b>Big cats</b> digunakan untuk menyebut kelompok kucing besar dalam keluarga Felidae yang merupakan predator puncak di alam liar. '
+        'Mereka bertubuh besar, berotot kuat, dan efisien berburu. Termasuk singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.</div>',
         unsafe_allow_html=True
     )
 
-    st.markdown("---")
+    st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
     # CATS
-    st.markdown("<div class='section-title'>Cats</div>", unsafe_allow_html=True)
-    show_grid(load_existing_images(CAT_DIR, cats_files), per_row=4)
+    st.markdown('<div class="section-title">Cats</div>', unsafe_allow_html=True)
+    show4(imgs(CAT_DIR, cats_files))
     st.markdown(
-        "<div class='section-desc'><b>Cats</b> merujuk pada semua Felidae, namun sehari-hari dipakai untuk kucing domestik (Felis catus). "
-        "Kucing domestik berukuran relatif kecil, jinak, dan hidup berdampingan dengan manusia sebagai hewan peliharaan.</div>",
+        '<div class="desc"><b>Cats</b> merujuk pada semua anggota Felidae, namun sehari-hari lebih sering untuk kucing domestik (Felis catus) '
+        'yang berukuran kecil, jinak, dan hidup berdampingan dengan manusia.</div>',
         unsafe_allow_html=True
     )
 
 with right:
-    st.markdown("<div class='stat-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='stat-head'>Data yang digunakan</div>", unsafe_allow_html=True)
+    st.markdown('<div class="stat-card">', unsafe_allow_html=True)
+    st.markdown('<div class="stat-header">Data yang digunakan</div>', unsafe_allow_html=True)
+
     st.markdown("""
     <div class="stat-grid">
-      <div class="stat-box"><div class="stat-num">4252</div><div class="stat-label">Bigcats</div></div>
-      <div class="stat-box"><div class="stat-num">3461</div><div class="stat-label">Cats</div></div>
-      <div class="stat-box"><div class="stat-num">7713</div><div class="stat-label">All</div></div>
+      <div><div class="stat-num">4252</div><div class="stat-label">Bigcats</div></div>
+      <div><div class="stat-num">3461</div><div class="stat-label">Cats</div></div>
+      <div><div class="stat-num">7713</div><div class="stat-label">All</div></div>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown("""
-    <div class="metric-wrap">
-      <div class="metric"><div>Klasifikasi Gambar</div><div class="big">76%</div><div class="small">Akurasi</div></div>
-      <div class="metric"><div>Deteksi Objek</div><div class="big">77.4%</div><div class="small">Akurasi</div></div>
+    <div class="metrics">
+      <div class="metric"><div class="m-title">Klasifikasi Gambar</div><div class="m-val">76%</div><div class="m-sub">Akurasi</div></div>
+      <div class="metric"><div class="m-title">Deteksi Objek</div><div class="m-val">77.4%</div><div class="m-sub">Akurasi</div></div>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- FOOTER ----------
-st.markdown("<div class='footer'>© 2025 Cats & Bigcats Dashboard — Streamlit</div>", unsafe_allow_html=True)
+st.markdown('<div class="foot">© 2025 Cats & Bigcats Dashboard — Streamlit</div>', unsafe_allow_html=True)
