@@ -1,5 +1,5 @@
 # ======================================================
-# Cats & Bigcats — FINAL RED MOCKUP (Fully Fixed)
+# Cats & Bigcats — FINAL RED MOCKUP (no white bar, red texts)
 # ======================================================
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ import numpy as np
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="CATS DAN BIGCATS", page_icon="🐾", layout="wide")
 
-# ---------- BACKEND (silent, optional) ----------
+# ---------- BACKEND (silent / optional) ----------
 YOLO_AVAILABLE = False
 CLASSIFIER_AVAILABLE = False
 yolo_model = None
@@ -46,97 +46,62 @@ st.markdown("""
 }
 
 *{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-
-[data-testid="stAppViewContainer"]{
-  background:var(--cream);
-  color:var(--ink);
-  padding-top:10px;
-}
+[data-testid="stAppViewContainer"]{ background:var(--cream); color:var(--ink); padding-top:10px; }
 [data-testid="stHeader"]{background:transparent;}
+h1,h2,h3{margin:0;padding:0}
 
 /* HERO */
-.hero{text-align:center;margin-top:10px;margin-bottom:6px;}
-.hero .t1{font-size:76px;font-weight:900;color:var(--red);letter-spacing:.5px;}
-.hero .t2{margin-top:10px;font-size:38px;font-weight:900;color:var(--red);letter-spacing:.8px;}
+.hero{ text-align:center; margin-top:10px; margin-bottom:6px; }
+.hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.5px; }
+.hero .t2{ margin-top:10px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
 
-/* MODE BUTTONS: Merah, teks putih */
+/* MODE BUTTONS: merah, teks putih */
 #modebar .stButton>button{
-  background:var(--red) !important;
-  color:#fff !important;
-  font-weight:800 !important;
-  letter-spacing:.3px;
-  padding:14px 26px !important;
-  border-radius:18px !important;
-  border:none !important;
-  min-width:220px;
-  box-shadow:0 6px 16px rgba(179,19,18,.28);
+  background:var(--red) !important; color:#fff !important; font-weight:800 !important;
+  letter-spacing:.3px; padding:14px 26px !important; border-radius:18px !important;
+  border:none !important; min-width:220px; box-shadow:0 6px 16px rgba(179,19,18,.28);
 }
-#modebar .stButton>button:hover{
-  background:var(--red-dark) !important;
-}
+#modebar .stButton>button:hover{ background:var(--red-dark) !important; }
 
 /* UPLOADER */
-.uploader-wrap{max-width:820px;margin:0 auto 20px auto;}
+.uploader-wrap{ max-width:820px; margin:0 auto 20px auto; }
 .uploader-wrap [data-testid="stFileUploaderDropzone"]{
-  border:2px dashed #e0e0e0 !important;
-  background:#eef2f7 !important;
-  border-radius:16px !important;
+  border:2px dashed #e0e0e0 !important; background:#eef2f7 !important; border-radius:16px !important;
 }
 
 /* HR */
-.sep{border:none;border-top:2px solid #E1E1E1;margin:22px 0 10px;}
+.sep{ border:none; border-top:2px solid #E1E1E1; margin:22px 0 10px; }
 
 /* SECTION */
-.section-title{color:var(--red);font-weight:900;font-size:28px;margin:12px 0 10px;}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-.grid img{width:100%;height:160px;object-fit:cover;border-radius:16px;
-          box-shadow:0 6px 16px rgba(0,0,0,.16);}
-.desc{font-size:14px;color:#3c3c3c;margin-top:10px;}
+.section-title{ color:var(--red); font-weight:900; font-size:28px; margin:12px 0 10px; }
+.grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.grid img{ width:100%; height:160px; object-fit:cover; border-radius:16px; box-shadow:0 6px 16px rgba(0,0,0,.16); }
+.desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 
-/* STAT CARD */
-.stat-card{
-  background:#fff;
-  color:var(--red);
-  border-radius:24px;
-  padding:20px;
-  box-shadow:0 12px 24px rgba(0,0,0,.1);
+/* RIGHT STATS (tanpa background putih) */
+.stat-wrap{ /* container transparan supaya tidak ada bar putih di atas */
+  background:transparent; padding:0; margin:0;
 }
 .stat-header{
-  background:var(--red);
-  color:#fff;
-  font-weight:800;
-  text-align:center;
-  padding:10px;
-  border-radius:25px;
-  margin-bottom:16px;
-  box-shadow:0 10px 16px rgba(179,19,18,.35);
+  background:var(--red); color:#fff; font-weight:800; text-align:center;
+  padding:12px; border-radius:28px; margin-bottom:14px;
+  box-shadow:0 14px 22px rgba(179,19,18,.35);
 }
 .stat-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  text-align:center;
-  gap:10px;
-  margin-bottom:12px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px;
 }
-.stat-num{font-size:30px;font-weight:900;line-height:1;}
-.stat-label{font-size:13px;}
-.metrics{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:10px;
-}
-.metric{
-  text-align:center;
-  padding:10px;
-  border-radius:12px;
-}
-.metric .m-title{font-weight:700;}
-.metric .m-val{font-size:28px;font-weight:900;margin-top:4px;}
-.metric .m-sub{font-size:12px;opacity:.9;}
+.stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }   /* angka merah */
+.stat-label{ font-size:14px; color:var(--red); }                                 /* label merah */
+
+/* metrics bawah jadi merah juga */
+.metrics{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:10px; }
+.metric{ text-align:center; padding:8px; border-radius:12px; }
+.metric .m-title{ font-weight:800; color:var(--red); }
+.metric .m-val{ font-size:34px; font-weight:900; margin-top:4px; color:var(--red); }
+.metric .m-sub{ font-size:12px; color:var(--red); opacity:.95 }
 
 /* FOOTER */
-.foot{text-align:center;font-size:12px;color:#666;margin:28px 0 8px;}
+.foot{ text-align:center; font-size:12px; color:#666; margin:28px 0 8px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -153,11 +118,11 @@ if "mode" not in st.session_state:
     st.session_state.mode = "Deteksi Objek"
 
 st.markdown('<div id="modebar">', unsafe_allow_html=True)
-colL, colR = st.columns(2)
-with colL:
+cL, cR = st.columns(2)
+with cL:
     if st.button("Deteksi Objek", use_container_width=True):
         st.session_state.mode = "Deteksi Objek"
-with colR:
+with cR:
     if st.button("Klasifikasi Gambar", use_container_width=True):
         st.session_state.mode = "Klasifikasi Gambar"
 st.markdown('</div>', unsafe_allow_html=True)
@@ -168,7 +133,7 @@ uploaded = st.file_uploader("Drag and drop file here  •  Max 200MB  •  JPG/J
                              type=["jpg","jpeg","png"])
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- PROCESS ----------
+# ---------- PROCESS (silent) ----------
 if uploaded is not None:
     img = Image.open(uploaded).convert("RGB")
     st.image(img, use_container_width=True)
@@ -179,7 +144,7 @@ if uploaded is not None:
         img_res = img.resize((224,224))
         arr = np.expand_dims(np.array(img_res)/255.0, axis=0)
         pred = classifier.predict(arr)
-        st.success(f"Hasil Prediksi: {np.argmax(pred)}")
+        st.success(f"Hasil Prediksi: {int(np.argmax(pred))}")
 
 # ---------- SEPARATOR ----------
 st.markdown('<hr class="sep">', unsafe_allow_html=True)
@@ -211,16 +176,22 @@ def show4(img_list: list[str]):
 with left:
     st.markdown('<div class="section-title">Big Cats</div>', unsafe_allow_html=True)
     show4(imgs(BIGCAT_DIR, bigcats_files))
-    st.markdown("<div class='desc'><b>Big cats</b> adalah kelompok kucing besar ...</div>", unsafe_allow_html=True)
-
+    st.markdown(
+        "<div class='desc'><b>Big cats</b> digunakan untuk menyebut kelompok kucing besar dalam keluarga Felidae yang merupakan predator puncak di alam liar. "
+        "Mereka bertubuh besar, berotot kuat, dan efisien berburu. Termasuk singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.</div>",
+        unsafe_allow_html=True
+    )
     st.markdown('<hr class="sep">', unsafe_allow_html=True)
-
     st.markdown('<div class="section-title">Cats</div>', unsafe_allow_html=True)
     show4(imgs(CAT_DIR, cats_files))
-    st.markdown("<div class='desc'><b>Cats</b> adalah kucing domestik ...</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='desc'><b>Cats</b> merujuk pada semua anggota Felidae, namun sehari-hari lebih sering untuk kucing domestik (Felis catus) yang berukuran kecil, jinak, dan hidup berdampingan dengan manusia.</div>",
+        unsafe_allow_html=True
+    )
 
 with right:
-    st.markdown('<div class="stat-card">', unsafe_allow_html=True)
+    # container transparan -> tidak ada bar putih
+    st.markdown('<div class="stat-wrap">', unsafe_allow_html=True)
     st.markdown('<div class="stat-header">Data yang digunakan</div>', unsafe_allow_html=True)
 
     st.markdown("""
@@ -242,6 +213,7 @@ with right:
       </div>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- FOOTER ----------
