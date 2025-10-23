@@ -90,8 +90,8 @@ st.markdown("""
 *{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
 [data-testid="stAppViewContainer"]{ background:var(--cream); color:var(--ink); padding-top:10px; }
 [data-testid="stHeader"]{background:transparent;}
-.hero{ text-align:center; margin-top:10px; margin-bottom:6px; }
-.hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.5px; }
+.hero{ text-align:center; margin-top:7px; margin-bottom:6px; }
+.hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.3px; }
 .hero .t2{ margin-top:10px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
 #modebar .stButton>button{
   background:var(--red) !important; color:#fff !important; font-weight:800 !important;
