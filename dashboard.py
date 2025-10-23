@@ -1,5 +1,5 @@
 # ======================================================
-# CATS & BIGCATS — FINAL (STRICT: NO TEXT on YOLO boxes)
+# CATS & BIGCATS — FINAL (improved visual + label text)
 # ======================================================
 import os, sys
 from pathlib import Path
@@ -36,13 +36,12 @@ classifier = None
 cv2 = None
 tf = None
 
-# try import cv2
 try:
     import cv2
     STATUS["opencv"] = cv2.__version__
 except Exception as e:
     STATUS["opencv"] = f"ERR: {e}"
-# ultralytics
+
 try:
     import ultralytics
     from ultralytics import YOLO
@@ -50,7 +49,7 @@ try:
 except Exception as e:
     YOLO = None
     STATUS["ultralytics"] = f"ERR: {e}"
-# tensorflow
+
 try:
     import tensorflow as tf
     from tensorflow.keras.preprocessing import image as keras_image
@@ -82,25 +81,68 @@ if os.path.exists(CLF_PATH):
             STATUS["tf_error"] = str(e)
 
 # -----------------------------
-# BASIC STYLES (kept minimal)
+# STYLES
 # -----------------------------
 st.markdown("""
 <style>
-:root{ --red:#B31312; --cream:#FFF3F1; --ink:#1b1b1b; }
-body { background:var(--cream); color:var(--ink); }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&display=swap');
+:root{ --red:#B31312; --red-dark:#8E0F0E; --cream:#FFF3F1; --ink:#1b1b1b; }
+*{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+[data-testid="stAppViewContainer"]{ background:var(--cream); color:var(--ink); padding-top:10px; }
+[data-testid="stHeader"]{background:transparent;}
+.hero{ text-align:center; margin-top:10px; margin-bottom:6px; }
+.hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.5px; }
+.hero .t2{ margin-top:10px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
+#modebar .stButton>button{
+  background:var(--red) !important; color:#fff !important; font-weight:800 !important;
+  padding:16px 26px !important; border-radius:16px !important; border:none !important;
+  min-width:260px; box-shadow:0 6px 16px rgba(179,19,18,.28); font-size:18px !important;
+}
+#modebar .stButton>button:hover{ background:var(--red-dark) !important; }
+.uploader-wrap{ max-width:820px; margin:0 auto 20px auto; }
+.uploader-wrap [data-testid="stFileUploaderDropzone"]{
+  border:2px dashed #e0e0e0 !important; background:#eef2f7 !important; border-radius:16px !important;
+}
+.section-title{ color:var(--red); font-weight:900; font-size:28px; margin:12px 0 10px; }
+.grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.grid img{ width:100%; height:160px; object-fit:cover; border-radius:16px; box-shadow:0 6px 16px rgba(0,0,0,.16); }
+.desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
+.stat-wrap{ background:transparent; padding:0; margin:0; }
+.stat-header{ background:var(--red); color:#fff; font-weight:800; text-align:center;
+  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* Jarak bawah ditambah dari 14px → 22px */
+.stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px; }
+.stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
+.stat-label{ font-size:14px; color:var(--red); }
+.metrics{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:10px; }
+.metric{ text-align:center; padding:8px; border-radius:12px; }
+.metric .m-title{ font-weight:800; color:var(--red); }
+.metric .m-val{ font-size:34px; font-weight:900; margin-top:4px; color:var(--red); }
+.metric .m-sub{ font-size:12px; color:var(--red); opacity:.95 }
+.badge{display:inline-block;background:#fff;border:1px solid #ddd;border-radius:10px;padding:4px 8px;margin-right:6px;font-size:12px}
+.badge.err{border-color:#f00;color:#b00000;background:#ffecec}
 </style>
 """, unsafe_allow_html=True)
 
-st.title("CATS DAN BIGCATS — Detection & Classification")
-st.text(f"Python {STATUS['python']}  |  OpenCV {STATUS['opencv']}  |  Ultralytics {STATUS['ultralytics']}  |  TF {STATUS['tensorflow']}")
-if STATUS["yolo_file"] != "missing":
-    st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
-else:
-    st.caption(f"YOLO model MISSING → {YOLO_PATH}")
-if STATUS["clf_file"] != "missing":
-    st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
-else:
-    st.caption(f"Classifier MISSING → {CLF_PATH}")
+# -----------------------------
+# HEADER
+# -----------------------------
+st.markdown("""
+<div class="hero">
+  <div class="t1">CATS DAN BIGCATS</div>
+  <div class="t2">DETECTION OBJEK AND CLASSIFICATION</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(
+    f"<span class='badge'>Python {STATUS['python']}</span>"
+    f"<span class='badge'>OpenCV {STATUS['opencv']}</span>"
+    f"<span class='badge'>Ultralytics {STATUS['ultralytics']}</span>"
+    f"<span class='badge'>TF {STATUS['tensorflow']}</span>",
+    unsafe_allow_html=True
+)
+
+st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
+st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
 
 # -----------------------------
 # UPLOADER & MODE
@@ -108,6 +150,7 @@ else:
 if "mode" not in st.session_state:
     st.session_state.mode = "Deteksi Objek"
 
+st.markdown('<div id="modebar">', unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
     if st.button("Deteksi Objek", use_container_width=True):
@@ -115,138 +158,32 @@ with col1:
 with col2:
     if st.button("Klasifikasi Gambar", use_container_width=True):
         st.session_state.mode = "Klasifikasi Gambar"
+st.markdown('</div>', unsafe_allow_html=True)
 
-uploaded = st.file_uploader("Upload JPG/PNG (Max 200MB)", type=["jpg","jpeg","png"])
-
-# -----------------------------
-# HELPER: draw boxes (NO TEXT)
-# -----------------------------
-def draw_boxes_only(pil_img, boxes_xyxy, class_ids=None, thickness_ratio=200):
-    """
-    Draw only rectangles (no text) and return PIL.Image.
-    boxes_xyxy: (N,4) array with x1,y1,x2,y2 in pixel coords
-    class_ids: optional list/array of ints (same length as boxes)
-    """
-    if cv2 is None:
-        return pil_img
-
-    img = np.array(pil_img).copy()  # RGB uint8
-    # convert to BGR
-    img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    h, w = img_bgr.shape[:2]
-    thickness = max(1, int(min(h, w) / thickness_ratio))
-
-    # ensure arrays
-    if boxes_xyxy is None or len(boxes_xyxy) == 0:
-        return pil_img
-
-    for i, box in enumerate(boxes_xyxy):
-        x1, y1, x2, y2 = [int(v) for v in box]
-        cls = int(class_ids[i]) if (class_ids is not None and i < len(class_ids)) else -1
-        # class mapping: 0 -> Big Cats (red), 1 -> Cats (blue)
-        if cls == 0:
-            color = (0, 0, 200)   # BGR (red-ish)
-        elif cls == 1:
-            color = (200, 0, 0)   # BGR (blue-ish)
-        else:
-            color = (200, 200, 200)
-        cv2.rectangle(img_bgr, (x1, y1), (x2, y2), color, thickness=thickness, lineType=cv2.LINE_AA)
-        # IMPORTANT: NO cv2.putText anywhere -> no labels
-    # convert back to RGB
-    img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(img_rgb)
+st.markdown('<div class="uploader-wrap">', unsafe_allow_html=True)
+uploaded = st.file_uploader("Drag and drop file here • Max 200MB • JPG/JPEG/PNG", type=["jpg","jpeg","png"])
+st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------
-# INFERENCE: detection or classification
+# INFERENCE
 # -----------------------------
 if uploaded is not None:
-    # load PIL image
-    img_pil = Image.open(uploaded).convert("RGB")
+    img = Image.open(uploaded).convert("RGB")
+    st.image(img, use_container_width=True)
 
     if st.session_state.mode == "Deteksi Objek":
-        if not STATUS["yolo_loaded"]:
-            st.info("YOLO not loaded (check badges).")
-        else:
+        if STATUS["yolo_loaded"]:
             try:
-                # Run YOLO (DO NOT call .plot())
-                results = yolo_model(img_pil)
-
-                # Try to extract boxes and class ids robustly
-                boxes = []
-                classes = []
-                try:
-                    # Preferred access: results[0].boxes.xyxy / .cls
-                    r0 = results[0]
-                    # .boxes could be an object with attributes
-                    if hasattr(r0, "boxes"):
-                        b = r0.boxes
-                        # xyxy as tensor or numpy
-                        if hasattr(b, "xyxy"):
-                            boxes = b.xyxy.cpu().numpy() if hasattr(b.xyxy, "cpu") else np.array(b.xyxy)
-                        elif hasattr(b, "xyxyn"):
-                            boxes = b.xyxyn.cpu().numpy() if hasattr(b.xyxyn, "cpu") else np.array(b.xyxyn)
-                        else:
-                            boxes = np.array([])
-
-                        # class ids
-                        if hasattr(b, "cls"):
-                            classes = b.cls.cpu().numpy() if hasattr(b.cls, "cpu") else np.array(b.cls)
-                        elif hasattr(b, "cls_id"):
-                            classes = b.cls_id.cpu().numpy() if hasattr(b.cls_id, "cpu") else np.array(b.cls_id)
-                        else:
-                            classes = np.array([])
-                    else:
-                        boxes = np.array([])
-                        classes = np.array([])
-                except Exception:
-                    boxes = np.array([])
-                    classes = np.array([])
-
-                # If boxes empty, try older attributes
-                if boxes is None or len(boxes) == 0:
-                    # try results[0].masks or results[0].boxes.data
-                    try:
-                        # some versions store .boxes.data
-                        data = results[0].boxes.data if hasattr(results[0].boxes, "data") else None
-                        if data is not None:
-                            boxes = data[:, :4].cpu().numpy() if hasattr(data, "cpu") else np.array(data)[:, :4]
-                            classes = data[:, 5].cpu().numpy() if hasattr(data, "cpu") else np.array(data)[:, 5]
-                    except Exception:
-                        pass
-
-                # convert to numpy
-                boxes = np.array(boxes) if boxes is not None else np.array([])
-                classes = np.array(classes) if classes is not None else np.array([])
-
-                # Ensure boxes are in pixel coords (if normalized, scale)
-                # Heuristic: if values <=1 -> normalized
-                if boxes.size != 0:
-                    if boxes.max() <= 1.01:
-                        w, h = img_pil.size
-                        boxes[:, [0,2]] *= w
-                        boxes[:, [1,3]] *= h
-                    # clip to image
-                    boxes[:, 0] = np.clip(boxes[:, 0], 0, img_pil.size[0]-1)
-                    boxes[:, 2] = np.clip(boxes[:, 2], 0, img_pil.size[0]-1)
-                    boxes[:, 1] = np.clip(boxes[:, 1], 0, img_pil.size[1]-1)
-                    boxes[:, 3] = np.clip(boxes[:, 3], 0, img_pil.size[1]-1)
-
-                # DRAW only boxes (NO text)
-                img_result = draw_boxes_only(img_pil, boxes, class_ids=classes)
-
-                # Show only final image (do not show original)
-                st.image(img_result, use_column_width=True)
-
+                results = yolo_model(img)
+                st.image(results[0].plot(), use_container_width=True)
             except Exception as e:
                 st.error(f"YOLO inference error: {e}")
-
-    else:
-        # Classification mode (0=Big Cats, 1=Cats)
-        if not STATUS["clf_loaded"]:
-            st.info("Classifier not loaded.")
         else:
+            st.info("Deteksi belum aktif.")
+    else:
+        if STATUS["clf_loaded"]:
             try:
-                img_res = img_pil.resize((224, 224))
+                img_res = img.resize((224, 224))
                 arr = np.array(img_res).astype("float32") / 255.0
                 arr = np.expand_dims(arr, axis=0)
                 pred = classifier.predict(arr)
@@ -257,7 +194,66 @@ if uploaded is not None:
                 st.success(f"Hasil Prediksi: **{label}**  •  Probabilitas: **{prob:.4f}**")
             except Exception as e:
                 st.error(f"TF inference error: {e}")
+        else:
+            st.info("Klasifikasi belum aktif.")
+
+st.markdown("<hr>", unsafe_allow_html=True)
 
 # -----------------------------
-# Footer / gallery omitted for brevity
+# GALLERY + STAT
 # -----------------------------
+left, right = st.columns([1.5, 1.0], gap="large")
+
+SEARCH_DIRS = [Path("."), Path("sample_images"), Path("images/cats"), Path("images/bigcats")]
+cats_files = ["flickr_cat_000003.jpg","flickr_cat_000004.jpg","flickr_cat_000005.jpg",
+              "flickr_cat_000006.jpg","flickr_cat_000008.jpg","flickr_cat_000009.jpg"]
+bigcats_files = ["flickr_wild_000274.jpg","flickr_wild_000276.jpg","flickr_wild_000277.jpg",
+                 "flickr_wild_000279.jpg","flickr_wild_000281.jpg","flickr_wild_000283.jpg"]
+
+def find_images(names):
+    out = []
+    for n in names:
+        for d in SEARCH_DIRS:
+            p = d / n
+            if p.exists():
+                out.append(str(p))
+                break
+    return out
+
+def show4(img_list):
+    if not img_list:
+        st.info("⚠️ Gambar belum ditemukan.")
+        return
+    rows = [img_list[i:i+4] for i in range(0, len(img_list), 4)]
+    for row in rows:
+        cols = st.columns(4)
+        for i, p in enumerate(row):
+            with cols[i]:
+                st.image(p, use_container_width=True)
+
+with left:
+    st.markdown('<div class="section-title">Big Cats</div>', unsafe_allow_html=True)
+    show4(find_images(bigcats_files))
+    st.markdown("<div class='desc'><b>Big cats</b> adalah predator besar dalam keluarga Felidae seperti singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.</div>", unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Cats</div>', unsafe_allow_html=True)
+    show4(find_images(cats_files))
+    st.markdown("<div class='desc'><b>Cats</b> adalah kucing domestik (Felis catus) yang hidup berdampingan dengan manusia.</div>", unsafe_allow_html=True)
+
+with right:
+    st.markdown('<div class="stat-wrap">', unsafe_allow_html=True)
+    st.markdown('<div class="stat-header">Data yang digunakan</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="stat-grid">
+      <div><div class="stat-num">4252</div><div class="stat-label">Bigcats</div></div>
+      <div><div class="stat-num">3461</div><div class="stat-label">Cats</div></div>
+      <div><div class="stat-num">7713</div><div class="stat-label">All</div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="m-title">Klasifikasi Gambar</div><div class="m-val">76%</div><div class="m-sub">Akurasi</div></div>
+      <div class="metric"><div class="m-title">Deteksi Objek</div><div class="m-val">77.4%</div><div class="m-sub">Akurasi</div></div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div style="text-align:center;font-size:12px;color:#666;margin:28px 0 8px;">© 2025 Cats & Bigcats Dashboard — Streamlit</div>', unsafe_allow_html=True)
