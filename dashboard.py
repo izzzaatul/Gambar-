@@ -1,5 +1,5 @@
 # ======================================================
-# Cats & Bigcats — FINAL (diagnostics, no requirements change)
+# CATS & BIGCATS — FINAL (improved visual + label text)
 # ======================================================
 import os, sys
 from pathlib import Path
@@ -31,14 +31,13 @@ STATUS = {
     "tf_error": "",
 }
 
-# Optional imports (tidak memaksa requirements berubah)
 yolo_model = None
 classifier = None
 cv2 = None
 tf = None
 
 try:
-    import cv2  # opencv-python-headless
+    import cv2
     STATUS["opencv"] = cv2.__version__
 except Exception as e:
     STATUS["opencv"] = f"ERR: {e}"
@@ -48,7 +47,7 @@ try:
     from ultralytics import YOLO
     STATUS["ultralytics"] = ultralytics.__version__
 except Exception as e:
-    YOLO = None  # type: ignore
+    YOLO = None
     STATUS["ultralytics"] = f"ERR: {e}"
 
 try:
@@ -56,42 +55,33 @@ try:
     from tensorflow.keras.preprocessing import image as keras_image
     STATUS["tensorflow"] = tf.__version__
 except Exception as e:
-    tf = None  # type: ignore
+    tf = None
     STATUS["tensorflow"] = f"ERR: {e}"
 
 YOLO_PATH = "model/Izzatul Aliya Nisa_Laporan 4.pt"
 CLF_PATH  = "model/Izzatul Aliya Nisa_Laporan 2.h5"
 
-# Load YOLO (hanya jika file ada & ultralytics berhasil di-import)
 if os.path.exists(YOLO_PATH):
     STATUS["yolo_file"] = human_size(YOLO_PATH)
-    if isinstance(STATUS["ultralytics"], str) and STATUS["ultralytics"].startswith("ERR"):
-        STATUS["yolo_error"] = "Ultralytics tidak tersedia."
-    else:
+    if not str(STATUS["ultralytics"]).startswith("ERR"):
         try:
-            # paksa CPU agar stabil di env cloud
-            if "CUDA_VISIBLE_DEVICES" not in os.environ:
-                os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+            os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
             yolo_model = YOLO(YOLO_PATH)
             STATUS["yolo_loaded"] = True
         except Exception as e:
             STATUS["yolo_error"] = str(e)
 
-# Load classifier TF (hanya jika file ada & TF berhasil di-import)
 if os.path.exists(CLF_PATH):
     STATUS["clf_file"] = human_size(CLF_PATH)
-    if tf is None or (isinstance(STATUS["tensorflow"], str) and STATUS["tensorflow"].startswith("ERR")):
-        STATUS["tf_error"] = "TensorFlow tidak tersedia."
-    else:
+    if tf is not None and not str(STATUS["tensorflow"]).startswith("ERR"):
         try:
             classifier = tf.keras.models.load_model(CLF_PATH)
             STATUS["clf_loaded"] = True
         except Exception as e:
-            # error paling sering: file .h5 pointer/korup
             STATUS["tf_error"] = str(e)
 
 # -----------------------------
-# STYLES (UI merah)
+# STYLES
 # -----------------------------
 st.markdown("""
 <style>
@@ -119,7 +109,7 @@ st.markdown("""
 .desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 .stat-wrap{ background:transparent; padding:0; margin:0; }
 .stat-header{ background:var(--red); color:#fff; font-weight:800; text-align:center;
-  padding:12px; border-radius:28px; margin-bottom:14px; box-shadow:0 14px 22px rgba(179,19,18,.35); }
+  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* Jarak bawah ditambah dari 14px → 22px */
 .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px; }
 .stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
 .stat-label{ font-size:14px; color:var(--red); }
@@ -134,7 +124,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------
-# HEADER & STATUS BADGES
+# HEADER
 # -----------------------------
 st.markdown("""
 <div class="hero">
@@ -145,43 +135,33 @@ st.markdown("""
 
 st.markdown(
     f"<span class='badge'>Python {STATUS['python']}</span>"
-    f"<span class='badge'>{'OpenCV '+STATUS['opencv'] if not str(STATUS['opencv']).startswith('ERR') else 'OpenCV: OFF'}</span>"
-    f"<span class='badge'>{'Ultralytics '+STATUS['ultralytics'] if not str(STATUS['ultralytics']).startswith('ERR') else 'Ultralytics: OFF'}</span>"
-    f"<span class='badge'>{'TF '+STATUS['tensorflow'] if not str(STATUS['tensorflow']).startswith('ERR') else 'TF: OFF'}</span>",
+    f"<span class='badge'>OpenCV {STATUS['opencv']}</span>"
+    f"<span class='badge'>Ultralytics {STATUS['ultralytics']}</span>"
+    f"<span class='badge'>TF {STATUS['tensorflow']}</span>",
     unsafe_allow_html=True
 )
-if STATUS["yolo_file"] != "missing":
-    st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
-else:
-    st.caption(f"YOLO model MISSING → {YOLO_PATH}")
-if STATUS["clf_file"] != "missing":
-    st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
-else:
-    st.caption(f"Classifier MISSING → {CLF_PATH}")
-if STATUS["yolo_error"]:
-    st.markdown(f"<span class='badge err'>YOLO load error: {STATUS['yolo_error']}</span>", unsafe_allow_html=True)
-if STATUS["tf_error"]:
-    st.markdown(f"<span class='badge err'>TF load error: {STATUS['tf_error']}</span>", unsafe_allow_html=True)
+
+st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
+st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
 
 # -----------------------------
-# MODE BUTTONS & UPLOADER
+# UPLOADER & MODE
 # -----------------------------
 if "mode" not in st.session_state:
     st.session_state.mode = "Deteksi Objek"
 
 st.markdown('<div id="modebar">', unsafe_allow_html=True)
-cL, cR = st.columns(2)
-with cL:
+col1, col2 = st.columns(2)
+with col1:
     if st.button("Deteksi Objek", use_container_width=True):
         st.session_state.mode = "Deteksi Objek"
-with cR:
+with col2:
     if st.button("Klasifikasi Gambar", use_container_width=True):
         st.session_state.mode = "Klasifikasi Gambar"
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="uploader-wrap">', unsafe_allow_html=True)
-uploaded = st.file_uploader("Drag and drop file here  •  Max 200MB  •  JPG/JPEG/PNG",
-                             type=["jpg","jpeg","png"])
+uploaded = st.file_uploader("Drag and drop file here • Max 200MB • JPG/JPEG/PNG", type=["jpg","jpeg","png"])
 st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------
@@ -199,7 +179,7 @@ if uploaded is not None:
             except Exception as e:
                 st.error(f"YOLO inference error: {e}")
         else:
-            st.info("Deteksi belum aktif (lihat badge/status di atas untuk penyebabnya).")
+            st.info("Deteksi belum aktif.")
     else:
         if STATUS["clf_loaded"]:
             try:
@@ -209,16 +189,18 @@ if uploaded is not None:
                 pred = classifier.predict(arr)
                 idx = int(np.argmax(pred))
                 prob = float(np.max(pred))
-                st.success(f"Hasil Prediksi: **{idx}**  •  Prob: **{prob:.4f}**")
+                label_map = {0: "Big Cats", 1: "Cats"}
+                label = label_map.get(idx, "Tidak diketahui")
+                st.success(f"Hasil Prediksi: **{label}**  •  Probabilitas: **{prob:.4f}**")
             except Exception as e:
                 st.error(f"TF inference error: {e}")
         else:
-            st.info("Klasifikasi belum aktif (lihat badge/status di atas untuk penyebabnya).")
+            st.info("Klasifikasi belum aktif.")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # -----------------------------
-# GALLERY (auto-detect image path)
+# GALLERY + STAT
 # -----------------------------
 left, right = st.columns([1.5, 1.0], gap="large")
 
@@ -240,7 +222,7 @@ def find_images(names):
 
 def show4(img_list):
     if not img_list:
-        st.info("⚠️ Gambar belum ditemukan. Pastikan file ada di folder yang benar.")
+        st.info("⚠️ Gambar belum ditemukan.")
         return
     rows = [img_list[i:i+4] for i in range(0, len(img_list), 4)]
     for row in rows:
@@ -252,11 +234,11 @@ def show4(img_list):
 with left:
     st.markdown('<div class="section-title">Big Cats</div>', unsafe_allow_html=True)
     show4(find_images(bigcats_files))
-    st.markdown("<div class='desc'><b>Big cats</b> digunakan untuk menyebut kelompok kucing besar dalam keluarga Felidae yang merupakan predator puncak di alam liar. Mereka bertubuh besar, berotot kuat, dan efisien berburu. Termasuk singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='desc'><b>Big cats</b> adalah predator besar dalam keluarga Felidae seperti singa, harimau, macan tutul, jaguar, cheetah, puma, dan snow leopard.</div>", unsafe_allow_html=True)
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown('<div class="section-title">Cats</div>', unsafe_allow_html=True)
     show4(find_images(cats_files))
-    st.markdown("<div class='desc'><b>Cats</b> merujuk pada semua anggota Felidae, namun sehari-hari lebih sering untuk kucing domestik (Felis catus) yang berukuran kecil, jinak, dan hidup berdampingan dengan manusia.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='desc'><b>Cats</b> adalah kucing domestik (Felis catus) yang hidup berdampingan dengan manusia.</div>", unsafe_allow_html=True)
 
 with right:
     st.markdown('<div class="stat-wrap">', unsafe_allow_html=True)
