@@ -1,5 +1,5 @@
 # ======================================================
-# CATS & BIGCATS — FINAL (no text labels, manual boxes)
+# CATS & BIGCATS — FINAL (improved visual + label text)
 # ======================================================
 import os, sys
 from pathlib import Path
@@ -36,14 +36,12 @@ classifier = None
 cv2 = None
 tf = None
 
-# import cv2 if available (we need it for drawing)
 try:
     import cv2
     STATUS["opencv"] = cv2.__version__
 except Exception as e:
     STATUS["opencv"] = f"ERR: {e}"
 
-# ultralytics
 try:
     import ultralytics
     from ultralytics import YOLO
@@ -52,7 +50,6 @@ except Exception as e:
     YOLO = None
     STATUS["ultralytics"] = f"ERR: {e}"
 
-# tensorflow classifier
 try:
     import tensorflow as tf
     from tensorflow.keras.preprocessing import image as keras_image
@@ -84,7 +81,7 @@ if os.path.exists(CLF_PATH):
             STATUS["tf_error"] = str(e)
 
 # -----------------------------
-# STYLES (sama seperti sebelumnya)
+# STYLES
 # -----------------------------
 st.markdown("""
 <style>
@@ -112,7 +109,7 @@ st.markdown("""
 .desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 .stat-wrap{ background:transparent; padding:0; margin:0; }
 .stat-header{ background:var(--red); color:#fff; font-weight:800; text-align:center;
-  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); }
+  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* Jarak bawah ditambah dari 14px → 22px */
 .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px; }
 .stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
 .stat-label{ font-size:14px; color:var(--red); }
@@ -127,7 +124,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------
-# HEADER & BADGES
+# HEADER
 # -----------------------------
 st.markdown("""
 <div class="hero">
@@ -144,88 +141,31 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-if STATUS["yolo_file"] != "missing":
-    st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
-else:
-    st.caption(f"YOLO model MISSING → {YOLO_PATH}")
-if STATUS["clf_file"] != "missing":
-    st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
-else:
-    st.caption(f"Classifier MISSING → {CLF_PATH}")
-
-if STATUS["yolo_error"]:
-    st.markdown(f"<span class='badge err'>YOLO load error: {STATUS['yolo_error']}</span>", unsafe_allow_html=True)
-if STATUS["tf_error"]:
-    st.markdown(f"<span class='badge err'>TF load error: {STATUS['tf_error']}</span>", unsafe_allow_html=True)
+st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
+st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
 
 # -----------------------------
-# MODE & UPLOADER
+# UPLOADER & MODE
 # -----------------------------
 if "mode" not in st.session_state:
     st.session_state.mode = "Deteksi Objek"
 
 st.markdown('<div id="modebar">', unsafe_allow_html=True)
-cL, cR = st.columns(2)
-with cL:
+col1, col2 = st.columns(2)
+with col1:
     if st.button("Deteksi Objek", use_container_width=True):
         st.session_state.mode = "Deteksi Objek"
-with cR:
+with col2:
     if st.button("Klasifikasi Gambar", use_container_width=True):
         st.session_state.mode = "Klasifikasi Gambar"
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="uploader-wrap">', unsafe_allow_html=True)
-uploaded = st.file_uploader("Drag and drop file here  •  Max 200MB  •  JPG/JPEG/PNG",
-                             type=["jpg","jpeg","png"])
+uploaded = st.file_uploader("Drag and drop file here • Max 200MB • JPG/JPEG/PNG", type=["jpg","jpeg","png"])
 st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------
-# HELPER: draw boxes with OpenCV (no text)
-# -----------------------------
-def draw_boxes_on_image(pil_img, boxes_xyxy, class_ids=None, confidences=None):
-    """
-    pil_img : PIL.Image (RGB)
-    boxes_xyxy : numpy array shape (N,4) with [x1,y1,x2,y2]
-    class_ids : numpy array shape (N,) ints (optional)
-    confidences : numpy array shape (N,) floats (optional)
-    returns PIL.Image with rectangles drawn (no text)
-    """
-    if cv2 is None:
-        # fallback: return original if cv2 not available
-        return pil_img
-
-    img = np.array(pil_img).copy()  # RGB
-    # convert to BGR for cv2 drawing
-    img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-    h, w = img_bgr.shape[:2]
-    thickness = max(1, int(min(h, w) / 200))  # adaptive thickness
-
-    for i, box in enumerate(boxes_xyxy):
-        x1, y1, x2, y2 = [int(v) for v in box]
-        cls = int(class_ids[i]) if (class_ids is not None and len(class_ids) > i) else -1
-
-        # warna per kelas (BGR)
-        # kelas 0 = Big Cats -> merah gelap
-        # kelas 1 = Cats -> oranye
-        if cls == 0:
-            color = (18, 19, 179)  # (B,G,R) approximate dark red-ish (converted) -> pick visible
-            # better choose clear colors:
-            color = (10, 30, 180)  # B,G,R (strong red)
-        elif cls == 1:
-            color = (10, 140, 200)  # B,G,R (orangey)
-        else:
-            color = (200, 200, 200)
-
-        # draw rectangle
-        cv2.rectangle(img_bgr, (x1, y1), (x2, y2), color, thickness=thickness, lineType=cv2.LINE_AA)
-
-    # convert back to RGB PIL
-    img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(img_rgb)
-
-# -----------------------------
-# INFERENCE (detection without text labels)
+# INFERENCE
 # -----------------------------
 if uploaded is not None:
     img = Image.open(uploaded).convert("RGB")
@@ -234,34 +174,13 @@ if uploaded is not None:
     if st.session_state.mode == "Deteksi Objek":
         if STATUS["yolo_loaded"]:
             try:
-                # run yolo
                 results = yolo_model(img)
-
-                # try to extract boxes, classes, confidences
-                try:
-                    # ultralytics Result object: results[0].boxes.xyxy, .cls, .conf
-                    boxes = results[0].boxes.xyxy.cpu().numpy()  # shape (N,4)
-                    classes = results[0].boxes.cls.cpu().numpy() if hasattr(results[0].boxes, "cls") else \
-                              (results[0].boxes.cls.numpy() if hasattr(results[0].boxes, "cls") else np.array([]))
-                    confs = results[0].boxes.conf.cpu().numpy() if hasattr(results[0].boxes, "conf") else np.array([])
-
-                    # draw our own boxes (no text)
-                    img_with_boxes = draw_boxes_on_image(img, boxes, class_ids=classes, confidences=confs)
-                    st.image(img_with_boxes, use_container_width=True)
-
-                except Exception as e_inner:
-                    # if that fails (structure different), fallback to plot(labels=False),
-                    # but we attempted manual draw first.
-                    try:
-                        st.image(results[0].plot(labels=False), use_column_width=True)
-                    except Exception:
-                        st.error(f"Could not draw boxes: {e_inner}")
+                st.image(results[0].plot(), use_container_width=True)
             except Exception as e:
                 st.error(f"YOLO inference error: {e}")
         else:
-            st.info("Deteksi belum aktif (lihat badge/status di atas).")
+            st.info("Deteksi belum aktif.")
     else:
-        # classification mode (keputusan: 0=Big Cats, 1=Cats)
         if STATUS["clf_loaded"]:
             try:
                 img_res = img.resize((224, 224))
@@ -276,12 +195,12 @@ if uploaded is not None:
             except Exception as e:
                 st.error(f"TF inference error: {e}")
         else:
-            st.info("Klasifikasi belum aktif (lihat badge/status di atas).")
+            st.info("Klasifikasi belum aktif.")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # -----------------------------
-# GALLERY + STAT (sama seperti sebelumnya)
+# GALLERY + STAT
 # -----------------------------
 left, right = st.columns([1.5, 1.0], gap="large")
 
