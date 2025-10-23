@@ -209,8 +209,8 @@ left, right = st.columns([1.5, 1.0], gap="large")
 SEARCH_DIRS = [Path("."), Path("sample_images"), Path("images/cats"), Path("images/bigcats")]
 cats_files = ["flickr_cat_000011.jpg","flickr_cat_000012.jpg","flickr_cat_000014.jpg",
               "flickr_cat_000006.jpg","flickr_cat_000008.jpg","flickr_cat_000009.jpg"]
-bigcats_files = ["flickr_wild_002051.jpg","flickr_wild_000276.jpg","flickr_wild_000277.jpg",
-                 "flickr_wild_000279.jpg","flickr_wild_000281.jpg","flickr_wild_000283.jpg"]
+bigcats_files = ["flickr_wild_000276.jpg","flickr_wild_000279.jpg","flickr_wild_001371.jpg",
+                 "flickr_wild_001406.jpg","flickr_wild_002051.jpg","flickr_wild_002856.jpg"]
 
 def find_images(names):
     out = []
