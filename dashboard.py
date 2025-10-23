@@ -1,5 +1,5 @@
 # ======================================================
-# CATS & BIGCATS — FINAL (improved visual + label text)
+# CATS & BIGCATS — FINAL (no label text on YOLO plot)
 # ======================================================
 import os, sys
 from pathlib import Path
@@ -109,7 +109,7 @@ st.markdown("""
 .desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 .stat-wrap{ background:transparent; padding:0; margin:0; }
 .stat-header{ background:var(--red); color:#fff; font-weight:800; text-align:center;
-  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* Jarak bawah ditambah dari 14px → 22px */
+  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); }
 .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px; }
 .stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
 .stat-label{ font-size:14px; color:var(--red); }
@@ -175,7 +175,8 @@ if uploaded is not None:
         if STATUS["yolo_loaded"]:
             try:
                 results = yolo_model(img)
-                st.image(results[0].plot(), use_container_width=True)
+                # ⬇️ Tidak menampilkan teks label pada bounding box
+                st.image(results[0].plot(labels=False), use_container_width=True)
             except Exception as e:
                 st.error(f"YOLO inference error: {e}")
         else:
