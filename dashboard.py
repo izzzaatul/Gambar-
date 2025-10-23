@@ -1,6 +1,3 @@
-# ======================================================
-# CATS & BIGCATS — FINAL (improved visual + label text)
-# ======================================================
 import os, sys
 from pathlib import Path
 import streamlit as st
@@ -90,9 +87,9 @@ st.markdown("""
 *{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
 [data-testid="stAppViewContainer"]{ background:var(--cream); color:var(--ink); padding-top:10px; }
 [data-testid="stHeader"]{background:transparent;}
-.hero{ text-align:center; margin-top:4px; margin-bottom:2px; }
-.hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.3px; }
-.hero .t2{ margin-top:4px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
+.hero{ text-align:center; margin-top:0px; margin-bottom:6px; }
+.hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.5px; }
+.hero .t2{ margin-top:2px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
 #modebar .stButton>button{
   background:var(--red) !important; color:#fff !important; font-weight:800 !important;
   padding:16px 26px !important; border-radius:16px !important; border:none !important;
@@ -133,18 +130,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# KODE INI DIKOMENTARI UNTUK MENGHILANGKAN TULISAN VERSI SOFTWARE:
-# st.markdown(
-#     f"<span class='badge'>Python {STATUS['python']}</span>"
-#     f"<span class='badge'>OpenCV {STATUS['opencv']}</span>"
-#     f"<span class='badge'>Ultralytics {STATUS['ultralytics']}</span>"
-#     f"<span class='badge'>TF {STATUS['tensorflow']}</span>",
-#     unsafe_allow_html=True
-# )
-
-# KODE INI DIKOMENTARI UNTUK MENGHILANGKAN TULISAN YOLO MODEL DAN CLASSIFIER:
-# st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
-# st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
 
 # -----------------------------
 # UPLOADER & MODE
@@ -258,10 +243,8 @@ with right:
     """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # === START: TAMBAHAN VIDEO YOUTUBE ===
     st.markdown('<div class="section-title" style="margin-top: 30px;">Video Terkait</div>', unsafe_allow_html=True)
     st.video("https://www.youtube.com/watch?v=cuf1SXQ9sCM")
     st.video("https://www.youtube.com/watch?v=PzGI-FBzcNE")
-    # === END: TAMBAHAN VIDEO YOUTUBE ===
 
 st.markdown('<div style="text-align:center;font-size:12px;color:#666;margin:28px 0 8px;">© 2025 Cats & Bigcats Dashboard — Streamlit</div>', unsafe_allow_html=True)
