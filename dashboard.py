@@ -109,7 +109,7 @@ st.markdown("""
 .desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 .stat-wrap{ background:transparent; padding:0; margin:0; }
 .stat-header{ background:var(--red); color:#fff; font-weight:800; text-align:center;
-  padding:12px; border-radius:28px; margin-bottom:22px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* Jarak bawah ditambah dari 14px → 22px */
+  padding:12px; border-radius:28px; margin-bottom:40px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* <-- SUDAH DIUBAH DI SINI */
 .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px; }
 .stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
 .stat-label{ font-size:14px; color:var(--red); }
