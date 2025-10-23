@@ -109,7 +109,7 @@ st.markdown("""
 .desc{ font-size:14px; color:#3c3c3c; margin-top:10px; }
 .stat-wrap{ background:transparent; padding:0; margin:0; }
 .stat-header{ background:var(--red); color:#fff; font-weight:800; text-align:center;
-  padding:12px; border-radius:28px; margin-bottom:40px; box-shadow:0 14px 22px rgba(179,19,18,.35); } /* <-- SUDAH DIUBAH DI SINI */
+  padding:12px; border-radius:28px; margin-bottom:40px; box-shadow:0 14px 22px rgba(179,19,18,.35); }
 .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; margin-bottom:12px; }
 .stat-num{ font-size:36px; font-weight:900; line-height:1; color:var(--red); }
 .stat-label{ font-size:14px; color:var(--red); }
@@ -257,5 +257,11 @@ with right:
     </div>
     """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    # === START: TAMBAHAN VIDEO YOUTUBE ===
+    st.markdown('<div class="section-title" style="margin-top: 30px;">Video Terkait</div>', unsafe_allow_html=True)
+    st.video("https://www.youtube.com/watch?v=cuf1SXQ9sCM")
+    st.video("https://www.youtube.com/watch?v=PzGI-FBzcNE")
+    # === END: TAMBAHAN VIDEO YOUTUBE ===
 
 st.markdown('<div style="text-align:center;font-size:12px;color:#666;margin:28px 0 8px;">© 2025 Cats & Bigcats Dashboard — Streamlit</div>', unsafe_allow_html=True)
