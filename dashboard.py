@@ -129,7 +129,7 @@ st.markdown("""
 st.markdown("""
 <div class="hero">
   <div class="t1">CATS DAN BIGCATS</div>
-  <div class="t2">DETECTION OBJEK AND CLASSIFICATION</div>
+  <div class="t2">DETECTION AND CLASSIFICATION OBJECT</div>
 </div>
 """, unsafe_allow_html=True)
 
