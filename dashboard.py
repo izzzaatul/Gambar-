@@ -92,7 +92,7 @@ st.markdown("""
 [data-testid="stHeader"]{background:transparent;}
 .hero{ text-align:center; margin-top:4px; margin-bottom:2px; }
 .hero .t1{ font-size:76px; font-weight:900; color:var(--red); letter-spacing:.3px; }
-.hero .t2{ margin-top:10px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
+.hero .t2{ margin-top:4px; font-size:38px; font-weight:900; color:var(--red); letter-spacing:.8px; }
 #modebar .stButton>button{
   background:var(--red) !important; color:#fff !important; font-weight:800 !important;
   padding:16px 26px !important; border-radius:16px !important; border:none !important;
