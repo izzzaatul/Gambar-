@@ -133,16 +133,18 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown(
-    f"<span class='badge'>Python {STATUS['python']}</span>"
-    f"<span class='badge'>OpenCV {STATUS['opencv']}</span>"
-    f"<span class='badge'>Ultralytics {STATUS['ultralytics']}</span>"
-    f"<span class='badge'>TF {STATUS['tensorflow']}</span>",
-    unsafe_allow_html=True
-)
+# KODE INI DIKOMENTARI UNTUK MENGHILANGKAN TULISAN VERSI SOFTWARE:
+# st.markdown(
+#     f"<span class='badge'>Python {STATUS['python']}</span>"
+#     f"<span class='badge'>OpenCV {STATUS['opencv']}</span>"
+#     f"<span class='badge'>Ultralytics {STATUS['ultralytics']}</span>"
+#     f"<span class='badge'>TF {STATUS['tensorflow']}</span>",
+#     unsafe_allow_html=True
+# )
 
-st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
-st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
+# KODE INI DIKOMENTARI UNTUK MENGHILANGKAN TULISAN YOLO MODEL DAN CLASSIFIER:
+# st.caption(f"YOLO model: {YOLO_PATH} ({STATUS['yolo_file']}) • loaded={STATUS['yolo_loaded']}")
+# st.caption(f"Classifier: {CLF_PATH} ({STATUS['clf_file']}) • loaded={STATUS['clf_loaded']}")
 
 # -----------------------------
 # UPLOADER & MODE
@@ -191,7 +193,7 @@ if uploaded is not None:
                 prob = float(np.max(pred))
                 label_map = {0: "Big Cats", 1: "Cats"}
                 label = label_map.get(idx, "Tidak diketahui")
-                st.success(f"Hasil Prediksi: **{label}**  •  Probabilitas: **{prob:.4f}**")
+                st.success(f"Hasil Prediksi: **{label}** •  Probabilitas: **{prob:.4f}**")
             except Exception as e:
                 st.error(f"TF inference error: {e}")
         else:
