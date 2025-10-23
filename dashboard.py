@@ -207,9 +207,9 @@ st.markdown("<hr>", unsafe_allow_html=True)
 left, right = st.columns([1.5, 1.0], gap="large")
 
 SEARCH_DIRS = [Path("."), Path("sample_images"), Path("images/cats"), Path("images/bigcats")]
-cats_files = ["flickr_cat_000003.jpg","flickr_cat_000004.jpg","flickr_cat_000005.jpg",
+cats_files = ["flickr_cat_000011.jpg","flickr_cat_000012.jpg","flickr_cat_000014.jpg",
               "flickr_cat_000006.jpg","flickr_cat_000008.jpg","flickr_cat_000009.jpg"]
-bigcats_files = ["flickr_wild_000274.jpg","flickr_wild_000276.jpg","flickr_wild_000277.jpg",
+bigcats_files = ["flickr_wild_002051.jpg","flickr_wild_000276.jpg","flickr_wild_000277.jpg",
                  "flickr_wild_000279.jpg","flickr_wild_000281.jpg","flickr_wild_000283.jpg"]
 
 def find_images(names):
