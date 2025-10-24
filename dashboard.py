@@ -4,7 +4,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 
-st.set_page_config(page_title="CATS DAN BIGCATS", page_icon="🐾", layout="wide")
+st.set_page_config(page_title="CATS AND BIGCATS", page_icon="🐾", layout="wide")
 
 # -----------------------------
 # DIAGNOSTIC & MODEL LOADING
